@@ -2,7 +2,7 @@
 name: 기능 구현 이슈 템플릿
 about: 기능 구현 시 사용해주세요.
 title: "[Feat] "
-labels: Feature
+labels: ''
 assignees: ''
 
 ---

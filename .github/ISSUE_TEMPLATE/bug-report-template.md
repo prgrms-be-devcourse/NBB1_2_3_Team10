@@ -1,8 +1,8 @@
 ---
 name: 버그 작업 이슈 템플릿
 about: 버그 작업 시 사용해주세요.
-title: "[Fix]"
-labels: ''
+title: "[Bugfix]"
+labels: "\U0001F41EBug"
 assignees: ''
 
 ---
