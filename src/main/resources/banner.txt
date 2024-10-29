@@ -1,4 +1,4 @@
-${AnsiColor.BLUE}
+${AnsiColor.BRIGHT_MAGENTA}
   /$$$$$$   /$$$$$$   /$$$$$$   /$$$$$$   /$$$$$$  /$$$$$$  /$$$$$$/$$$$  /$$$$$$/$$$$   /$$$$$$   /$$$$$$   /$$$$$$$
  /$$__  $$ /$$__  $$ /$$__  $$ /$$__  $$ /$$__  $$|____  $$| $$_  $$_  $$| $$_  $$_  $$ /$$__  $$ /$$__  $$ /$$_____/
 | $$  \ $$| $$  \__/| $$  \ $$| $$  \ $$| $$  \__/ /$$$$$$$| $$ \ $$ \ $$| $$ \ $$ \ $$| $$$$$$$$| $$  \__/|  $$$$$$
@@ -9,4 +9,3 @@ ${AnsiColor.BLUE}
 | $$                          |  $$$$$$/
 |__/                           \______/
 ${AnsiColor.BRIGHT_GREEN}Spring Boot ${AnsiColor.RED}${spring-boot.formatted-version}
-${AnsiColor.BRIGHT_GREEN}Author jackson (iyboklee@gmail.com)
