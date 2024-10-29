@@ -1,14 +1,15 @@
 package org.tenten.bittakotlin.scout.controller.advice
 
-import com.prgrms2.java.bitta.scout.exception.ScoutTaskException
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
-import java.util.Map
+import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.tenten.bittakotlin.scout.exception.ScoutTaskException
 
 @RestControllerAdvice
 class ScoutControllerAdvice {
     @ExceptionHandler(ScoutTaskException::class)
-    fun handleScoutException(e: ScoutTaskException): ResponseEntity<*> {
-        return ResponseEntity.status(e.getCode())
-            .body(Map.of("error", e.getMessage()))
+    fun handleScoutException(e: ScoutTaskException): ResponseEntity<Map<String, String?>> {
+        return ResponseEntity.status(e.code)
+            .body(mapOf("error" to e.message))
     }
 }

@@ -1,46 +1,35 @@
 package org.tenten.bittakotlin.scout.entity
 
-import com.prgrms2.java.bitta.feed.entity.Feed
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.ManyToOne
-import lombok.AccessLevel
-import lombok.Builder
-import lombok.Data
-import lombok.Setter
+//import com.prgrms2.java.bitta.feed.entity.Feed
+//import com.prgrms2.java.bitta.member.entity.Member
+import jakarta.persistence.*
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
-@EntityListeners(
-    AuditingEntityListener::class
-)
-class ScoutRequest {
+@EntityListeners(AuditingEntityListener::class)
+data class ScoutRequest(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Setter(AccessLevel.NONE)
-    private val id: Long? = null
+    val id: Long? = null,
 
     @ManyToOne
     @JoinColumn(name = "feed_id", nullable = false)
-    private val feed: Feed? = null
+    val feed: Feed,
 
     @ManyToOne
     @JoinColumn(name = "sender_id", nullable = false)
-    private val sender: Member? = null
+    val sender: Member,
 
     @ManyToOne
     @JoinColumn(name = "receiver_id", nullable = false)
-    private val receiver: Member? = null
+    val receiver: Member,
 
     @Lob
-    private val description: String? = null
+    val description: String? = null,
 
     @CreatedDate
     @Column(updatable = false)
-    private var sentAt: LocalDateTime? = null
-}
+    var sentAt: LocalDateTime? = null
+)
