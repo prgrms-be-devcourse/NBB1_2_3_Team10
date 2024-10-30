@@ -31,6 +31,7 @@ class LoginFilter(
             val objectMapper = ObjectMapper()
             val inputStream = request.inputStream
             val messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8)
+            println(messageBody)
             objectMapper.readValue(messageBody, MemberRequestDTO.Login::class.java)
         } catch (e: IOException) {
             throw RuntimeException(e)
@@ -52,6 +53,7 @@ class LoginFilter(
         chain: FilterChain,
         authentication: Authentication
     ) {
+
         // 유저 정보
         val username = authentication.name
         val authorities = authentication.authorities

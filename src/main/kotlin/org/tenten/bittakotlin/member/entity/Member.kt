@@ -16,16 +16,17 @@ data class Member(
     val id: Long? = null,
 
     @Column(nullable = false, unique = true)
-    var username: String,
+    var username: String = "",
 
     @Column(nullable = false)
-    var password: String,
+    var password: String = "",
 
     @Column(nullable = false, unique = true)
-    var nickname: String,
+    var nickname: String = "",
 
     @Column(nullable = false)
-    var address: String,
+    var address: String = "",
 
+    @Column(nullable = false)
     var role: String? = null
 )
