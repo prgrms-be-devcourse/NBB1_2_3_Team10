@@ -5,14 +5,14 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.tenten.bittakotlin.profile.dto.ProfileDTO
-import org.tenten.bittakotlin.profile.service.ProfileService
+import org.tenten.bittakotlin.profile.service.ProfileServiceImpl
 
 
 
 @RestController
 @RequestMapping("/api/v1/profile")
 class ProfileController(
-    private val profileService: ProfileService
+    private val profileService: ProfileServiceImpl
 ) {
 
     @PostMapping
