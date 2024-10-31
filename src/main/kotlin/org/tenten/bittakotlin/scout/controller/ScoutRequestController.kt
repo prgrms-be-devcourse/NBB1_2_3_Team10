@@ -1,5 +1,5 @@
 package org.tenten.bittakotlin.scout.controller
-
+//테스트용 커밋입니다
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
