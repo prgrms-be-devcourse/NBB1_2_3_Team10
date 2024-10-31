@@ -40,6 +40,9 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    // AWS Java S3 SDK - AWS S3 스토리지와 통신을 수행할 때 사용하는 디펜던시.
+    implementation("software.amazon.awssdk:s3:2.28.16")
 }
 
 kotlin {
