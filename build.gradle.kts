@@ -43,6 +43,9 @@ dependencies {
 
     // AWS Java S3 SDK - AWS S3 스토리지와 통신을 수행할 때 사용하는 디펜던시.
     implementation("software.amazon.awssdk:s3:2.28.16")
+
+    // H2 Database Engine - 테스트에서 사용하는 인메모리 데이터베이스 H2
+    testImplementation("com.h2database:h2:2.3.232")
 }
 
 kotlin {
