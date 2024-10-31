@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/release' # release 브랜치에만 빌드 수행
     runs-on: ubuntu-latest
     permissions:
       contents: read
