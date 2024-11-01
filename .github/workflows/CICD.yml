@@ -52,7 +52,7 @@ jobs:
         docker push ${{ secrets.DOCKER_USERNAME }}/bitta-kotlin:latest
         
   deploy:
-    if: github.repository == 'prgrms-be-devcourse/NBB1_2_3_Team10'
+    if: github.repository == 'prgrms-be-devcourse/NBB1_2_3_Team10' && github.ref == 'refs/heads/release'
     needs: build
     runs-on: ubuntu-latest
     permissions:
