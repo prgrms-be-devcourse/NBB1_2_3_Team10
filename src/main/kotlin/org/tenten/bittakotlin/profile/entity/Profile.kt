@@ -2,6 +2,7 @@ package org.tenten.bittakotlin.profile.entity
 
 
 import jakarta.persistence.*
+import org.tenten.bittakotlin.member.entity.Member
 import org.tenten.bittakotlin.profile.constant.Job
 
 //data class 로 변경

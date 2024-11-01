@@ -5,6 +5,9 @@ import org.slf4j.LoggerFactory
 import org.slf4j.Logger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.tenten.bittakotlin.member.entity.Member
+import org.tenten.bittakotlin.member.repository.MemberRepository
+import org.tenten.bittakotlin.member.service.MemberService
 import org.tenten.bittakotlin.profile.dto.ProfileDTO
 import org.tenten.bittakotlin.profile.entity.Profile
 import org.tenten.bittakotlin.profile.repository.ProfileRepository
@@ -21,17 +24,25 @@ class ProfileServiceImpl(
     override fun createProfile(profileDTO: ProfileDTO): ProfileDTO {
         logger.info("Starting profile creation for memberId=${profileDTO.memberId}")
 
-        val member = memberService.findById(profileDTO.memberId)
-            ?: throw EntityNotFoundException("Member not found for memberId=${profileDTO.memberId}")
+        val memberProfile = memberService.findMemberProfileData(profileDTO.memberId)
+
 
         val profile = Profile(
-            member = member,
+            member = Member(
+                id = memberProfile.id,
+                username = memberProfile.username,
+                password = "",
+                nickname = memberProfile.nickname,
+                address = memberProfile.address,
+                role = "ROLE_USER"
+            ),
             nickname = profileDTO.nickname,
             profileUrl = profileDTO.profileUrl,
             description = profileDTO.description,
             job = profileDTO.job?.let { Job.valueOf(it) },
             socialMedia = profileDTO.socialMedia
         )
+
 
         val savedProfile = profileRepository.save(profile)
         logger.info("Profile created successfully for memberId=${profileDTO.memberId}")
