@@ -20,6 +20,24 @@ class ProfileServiceImpl(
     private val memberService: MemberService
 ) : ProfileService {
 
+    //Member 생성시 Profile 도 같이 생성
+    @Transactional
+    override fun createDefaultProfile(member: Member): ProfileDTO {
+
+        val profile = Profile(
+            member = member,
+            nickname = member.nickname,
+            profileUrl = null,
+            description = "This is a default profile.",
+            job = null,
+            socialMedia = null
+        )
+        val savedProfile = profileRepository.save(profile)
+        return toDto(savedProfile)
+    }
+
+
+    //자체적으로 profile 을 생성할경우. "테스트 용도"
     @Transactional
     override fun createProfile(profileDTO: ProfileDTO): ProfileDTO {
         logger.info("Starting profile creation for memberId=${profileDTO.memberId}")

@@ -10,7 +10,7 @@ import org.tenten.bittakotlin.member.dto.MemberRequestDTO
 import org.tenten.bittakotlin.member.dto.MemberResponseDTO
 import org.tenten.bittakotlin.member.entity.Member
 import org.tenten.bittakotlin.member.repository.MemberRepository
-import org.tenten.bittakotlin.profile.entity.Profile
+import org.tenten.bittakotlin.profile.service.ProfileService
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +18,7 @@ import org.tenten.bittakotlin.profile.entity.Profile
 class MemberServiceImpl (
     private val memberRepository: MemberRepository,
     private val bCryptPasswordEncoder: BCryptPasswordEncoder
+    private val profileService: ProfileService
 ): MemberService {
 
     override fun join(joinDTO: MemberRequestDTO.Join) {
@@ -40,9 +41,12 @@ class MemberServiceImpl (
             role = "ROLE_USER"
         )
 
-        memberRepository.save(data)
+        //memberRepository.save(data)
 
+        //Member 생성시 Profile 도 같이 생성되게 코드 생성
+        val savedMember = memberRepository.save(data)
 
+        profileService.createDefaultProfile(savedMember)
     }
 
     override fun read(id: Long): MemberResponseDTO.Information {
