@@ -101,6 +101,11 @@ class ProfileServiceImpl(
         )
     }
 
+    override fun getByNickname(nickname: String): Profile {
+        return profileRepository.findByNickname(nickname)
+            .orElseThrow { NoSuchElementException() }
+    }
+
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(ProfileServiceImpl::class.java)
     }
