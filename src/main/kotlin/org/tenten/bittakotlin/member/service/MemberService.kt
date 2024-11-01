@@ -11,6 +11,10 @@ interface MemberService {
 
     fun updateMember(request: MemberRequestDTO.UpdateMemberRequest)
 
+    //Profile 측 정보 조회 메서드
+    fun findMemberProfileData(memberID: Long): MemberResponseDTO.Information
+
+
 //    fun delete(id: Long)
 //
 //    fun checkAuthority(id: Long, username: String): Boolean
