@@ -11,7 +11,7 @@ interface MemberService {
 
     fun updateMember(request: MemberRequestDTO.UpdateMemberRequest)
 
-
+    fun remove(id: Long)
 
 //    fun delete(id: Long)
 //

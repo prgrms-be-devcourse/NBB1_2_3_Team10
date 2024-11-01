@@ -37,4 +37,10 @@ class MemberController(
         memberService.updateMember(updateRequest.copy(id = id)) // copy() 메서드를 사용하여 새로운 인스턴스를 생성
         return ResponseEntity.ok().build()
     }
+
+    @DeleteMapping("/{id}")
+    fun remove(@PathVariable id: Long): ResponseEntity<String> {
+        memberService.remove(id)
+        return ResponseEntity.ok("탈퇴에 성공했습니다.")
+    }
 }
