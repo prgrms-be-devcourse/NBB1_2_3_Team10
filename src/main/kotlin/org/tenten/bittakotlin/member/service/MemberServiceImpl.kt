@@ -17,7 +17,7 @@ import org.tenten.bittakotlin.profile.service.ProfileService
 @Slf4j
 class MemberServiceImpl (
     private val memberRepository: MemberRepository,
-    private val bCryptPasswordEncoder: BCryptPasswordEncoder
+    private val bCryptPasswordEncoder: BCryptPasswordEncoder,
     private val profileService: ProfileService
 ): MemberService {
 
@@ -83,16 +83,4 @@ class MemberServiceImpl (
         memberRepository.save(member) // 수정 후 저장
     }
 
-    //Profile 측 정보 조회 메서드
-    override fun findMemberProfileData(memberId: Long): MemberResponseDTO.Information {
-        val member = memberRepository.findById(memberId)
-            .orElseThrow { EntityNotFoundException("memberId = $memberId 를 찾을 수 없습니다")}
-
-        return MemberResponseDTO.Information(
-            id = member.id!!,
-            username = member.username,
-            nickname = member.nickname,
-            address = member.address
-        )
-    }
 }

@@ -17,7 +17,7 @@ import org.tenten.bittakotlin.profile.constant.Job
 @Service
 class ProfileServiceImpl(
     private val profileRepository: ProfileRepository,
-    private val memberService: MemberService
+    private val memberRepository: MemberRepository
 ) : ProfileService {
 
     //Member 생성시 Profile 도 같이 생성
@@ -39,34 +39,26 @@ class ProfileServiceImpl(
 
     //자체적으로 profile 을 생성할경우. "테스트 용도"
     @Transactional
-    override fun createProfile(profileDTO: ProfileDTO): ProfileDTO {
-        logger.info("Starting profile creation for memberId=${profileDTO.memberId}")
-
-        val memberProfile = memberService.findMemberProfileData(profileDTO.memberId)
-
+    override fun createProfile(memberId: Long, nickname: String): ProfileDTO {
+        
+        val member = memberRepository.findById(memberId)
+            .orElseThrow { EntityNotFoundException("Member not found for memberId=$memberId") }
 
         val profile = Profile(
-            member = Member(
-                id = memberProfile.id,
-                username = memberProfile.username,
-                password = "",
-                nickname = memberProfile.nickname,
-                address = memberProfile.address,
-                role = "ROLE_USER"
-            ),
-            nickname = profileDTO.nickname,
-            profileUrl = profileDTO.profileUrl,
-            description = profileDTO.description,
-            job = profileDTO.job?.let { Job.valueOf(it) },
-            socialMedia = profileDTO.socialMedia
+            member = member,
+            nickname = nickname,
+            profileUrl = null,
+            description = "This is a custom profile.",
+            job = null,
+            socialMedia = null
         )
 
-
         val savedProfile = profileRepository.save(profile)
-        logger.info("Profile created successfully for memberId=${profileDTO.memberId}")
+        logger.info("Profile created successfully for memberId=$memberId")
 
         return toDto(savedProfile)
     }
+
 
     @Transactional(readOnly = true)
     override fun getProfile(memberId: Long): ProfileDTO {
