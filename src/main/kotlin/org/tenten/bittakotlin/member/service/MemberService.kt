@@ -11,6 +11,8 @@ interface MemberService {
 
     fun updateMember(request: MemberRequestDTO.UpdateMemberRequest)
 
+
+
 //    fun delete(id: Long)
 //
 //    fun checkAuthority(id: Long, username: String): Boolean
