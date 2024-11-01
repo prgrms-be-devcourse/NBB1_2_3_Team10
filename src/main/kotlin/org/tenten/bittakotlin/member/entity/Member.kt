@@ -20,6 +20,7 @@ data class Member(
     @OneToOne(mappedBy = "member", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     var profile: Profile? = null,
 
+
     @Column(nullable = false, unique = true)
     var username: String = "",
 

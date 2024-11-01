@@ -1,6 +1,8 @@
 package org.tenten.bittakotlin.member.service
 
+
 import jakarta.persistence.EntityNotFoundException
+
 import lombok.RequiredArgsConstructor
 import lombok.extern.slf4j.Slf4j
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -19,6 +21,8 @@ class MemberServiceImpl (
     private val memberRepository: MemberRepository,
     private val bCryptPasswordEncoder: BCryptPasswordEncoder,
     private val profileService: ProfileService
+    private val bCryptPasswordEncoder: BCryptPasswordEncoder
+  
 ): MemberService {
 
     override fun join(joinDTO: MemberRequestDTO.Join) {
@@ -47,6 +51,8 @@ class MemberServiceImpl (
         val savedMember = memberRepository.save(data)
 
         profileService.createDefaultProfile(savedMember)
+
+        memberRepository.save(data)
     }
 
     override fun read(id: Long): MemberResponseDTO.Information {

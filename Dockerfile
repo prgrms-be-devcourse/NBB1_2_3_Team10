@@ -1,13 +1,10 @@
-# Dockerfile
 
-# jdk17 Image Start
+# Use OpenJDK 17 image
 FROM openjdk:17
 
-# 인자 설정 - Jar_File
-ARG JAR_FILE=build/libs/*.jar
+# Copy the built jar file
+COPY build/libs/*.jar app.jar
 
-# jar 파일 복제
-COPY ${JAR_FILE} app.jar
+# Set the entry point to run the application
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "/app.jar"]
 
-# 실행 명령어
-ENTRYPOINT ["java", "-jar", "app.jar"]
