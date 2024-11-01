@@ -1,8 +1,5 @@
 package org.tenten.bittakotlin.member.service
 
-
-import jakarta.persistence.EntityNotFoundException
-
 import lombok.RequiredArgsConstructor
 import lombok.extern.slf4j.Slf4j
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -12,17 +9,13 @@ import org.tenten.bittakotlin.member.dto.MemberRequestDTO
 import org.tenten.bittakotlin.member.dto.MemberResponseDTO
 import org.tenten.bittakotlin.member.entity.Member
 import org.tenten.bittakotlin.member.repository.MemberRepository
-import org.tenten.bittakotlin.profile.service.ProfileService
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 class MemberServiceImpl (
     private val memberRepository: MemberRepository,
-    private val bCryptPasswordEncoder: BCryptPasswordEncoder,
-    private val profileService: ProfileService
     private val bCryptPasswordEncoder: BCryptPasswordEncoder
-  
 ): MemberService {
 
     override fun join(joinDTO: MemberRequestDTO.Join) {
@@ -44,13 +37,6 @@ class MemberServiceImpl (
             address = address,
             role = "ROLE_USER"
         )
-
-        //memberRepository.save(data)
-
-        //Member 생성시 Profile 도 같이 생성되게 코드 생성
-        val savedMember = memberRepository.save(data)
-
-        profileService.createDefaultProfile(savedMember)
 
         memberRepository.save(data)
     }
@@ -88,5 +74,4 @@ class MemberServiceImpl (
 
         memberRepository.save(member) // 수정 후 저장
     }
-
 }
