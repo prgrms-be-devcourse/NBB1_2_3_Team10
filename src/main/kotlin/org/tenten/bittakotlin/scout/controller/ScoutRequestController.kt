@@ -1,5 +1,5 @@
 package org.tenten.bittakotlin.scout.controller
-
+/*
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -43,3 +43,5 @@ class ScoutRequestController(
         return ResponseEntity.ok(mapOf("message" to "받은 스카우트를 조회했습니다.", "receivedRequests" to receivedRequests))
     }
 }
+
+ */
