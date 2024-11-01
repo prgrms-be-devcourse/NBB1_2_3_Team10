@@ -3,7 +3,6 @@ package org.tenten.bittakotlin.member.entity
 import jakarta.persistence.*
 import lombok.*
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
-import org.tenten.bittakotlin.profile.entity.Profile
 
 @Data
 @Builder
@@ -12,14 +11,9 @@ import org.tenten.bittakotlin.profile.entity.Profile
 @Entity
 @EntityListeners(AuditingEntityListener::class)
 data class Member(
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
-
-    @OneToOne(mappedBy = "member", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    var profile: Profile? = null,
-
 
     @Column(nullable = false, unique = true)
     var username: String = "",
@@ -35,6 +29,4 @@ data class Member(
 
     @Column(nullable = false)
     var role: String? = null
-
-
 )
