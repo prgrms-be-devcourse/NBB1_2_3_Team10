@@ -39,22 +39,22 @@ class ProfileServiceImpl(
 
     //자체적으로 profile 을 생성할경우. "테스트 용도"
     @Transactional
-    override fun createProfile(memberId: Long, nickname: String): ProfileDTO {
-        
-        val member = memberRepository.findById(memberId)
-            .orElseThrow { EntityNotFoundException("Member not found for memberId=$memberId") }
+    override fun createProfile(profileDTO: ProfileDTO): ProfileDTO {
+        val member = memberRepository.findById(profileDTO.memberId).orElseThrow {
+            EntityNotFoundException("Member not found for memberId=${profileDTO.memberId}")
+        }
 
         val profile = Profile(
             member = member,
-            nickname = nickname,
-            profileUrl = null,
-            description = "This is a custom profile.",
-            job = null,
-            socialMedia = null
+            nickname = profileDTO.nickname,
+            profileUrl = profileDTO.profileUrl,
+            description = profileDTO.description,
+            job = profileDTO.job?.let { Job.valueOf(it) },
+            socialMedia = profileDTO.socialMedia
         )
 
         val savedProfile = profileRepository.save(profile)
-        logger.info("Profile created successfully for memberId=$memberId")
+        logger.info("Profile created successfully for memberId=${profileDTO.memberId}")
 
         return toDto(savedProfile)
     }
