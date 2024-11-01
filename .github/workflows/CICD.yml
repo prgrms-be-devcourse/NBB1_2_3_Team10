@@ -4,11 +4,11 @@ on:
   push:
     branches: [ "main", "release" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "release" ]
 
 jobs:
   build:
-    if: github.ref == 'refs/heads/release' # release 브랜치에만 빌드 수행
+    if: github.repository == 'prgrms-be-devcourse/NBB1_2_3_Team10'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -52,7 +52,7 @@ jobs:
         docker push ${{ secrets.DOCKER_USERNAME }}/bitta-kotlin:latest
         
   deploy:
-    if: github.ref == 'refs/heads/release' # release 브랜치에만 배포 수행
+    if: github.repository == 'prgrms-be-devcourse/NBB1_2_3_Team10'
     needs: build
     runs-on: ubuntu-latest
     permissions:
