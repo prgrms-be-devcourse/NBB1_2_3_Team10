@@ -92,7 +92,7 @@ class ProfileServiceImpl(
 
     private fun toDto(profile: Profile): ProfileDTO {
         return ProfileDTO(
-            memberId = profile.member.id ?: throw IllegalStateException("Member ID is missing"),
+            memberId = profile.member!!.id ?: throw IllegalStateException("Member ID is missing"),
             nickname = profile.nickname,
             profileUrl = profile.profileUrl,
             description = profile.description,
