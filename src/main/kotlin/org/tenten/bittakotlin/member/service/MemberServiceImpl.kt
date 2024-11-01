@@ -85,4 +85,12 @@ class MemberServiceImpl  (
         memberRepository.save(member) // 수정 후 저장
     }
 
+    override fun remove(id: Long) {
+
+        if (!memberRepository.existsById(id)) {
+            throw NoSuchElementException("Member ${id} not found.")
+        }
+        memberRepository.deleteById(id)
+    }
+
 }
