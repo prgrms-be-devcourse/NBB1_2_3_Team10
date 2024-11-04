@@ -41,6 +41,9 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
+    // Websoket
+    implementation("org.springframework:spring-websocket")
+
     // AWS Java S3 SDK - AWS S3 스토리지와 통신을 수행할 때 사용하는 디펜던시
     implementation("software.amazon.awssdk:s3:2.28.16")
 
@@ -50,12 +53,12 @@ dependencies {
     // Spring Boot Starter Websocket - 웹소켓 통신을 수행할 때 사용하는 디펜던시
     implementation("org.springframework.boot:spring-boot-starter-websocket:3.3.4")
 
-    //JWT 의존성
+    // JWT 의존성
     implementation("io.jsonwebtoken:jjwt-api:0.12.3")
     implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
     implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
 
-    //Swagger
+    // Swagger
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")

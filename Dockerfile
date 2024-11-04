@@ -1,10 +1,17 @@
+# Use an official Gradle image to build the backend
+FROM gradle:7.5.1-jdk11 AS build
 
-# Use OpenJDK 17 image
-FROM openjdk:17
+# Set working directory
+WORKDIR /app
 
-# Copy the built jar file
-COPY build/libs/*.jar app.jar
+# Copy and build the application
+COPY . .
+RUN gradle build -x test
 
-# Set the entry point to run the application
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "/app.jar"]
+# Use a lightweight JRE image for runtime
+FROM openjdk:11-jre-slim
+COPY --from=build /app/build/libs/*.jar /app/app.jar
+
+EXPOSE 8080
+CMD ["java", "-jar", "-Dspring.profiles.active=prod", "/app.jar"]
 
