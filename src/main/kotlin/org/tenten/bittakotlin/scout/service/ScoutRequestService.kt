@@ -3,7 +3,7 @@ package org.tenten.bittakotlin.scout.service
 //import com.prgrms2.java.bitta.feed.entity.Feed
 //import com.prgrms2.java.bitta.member.entity.Member
 //import com.prgrms2.java.bitta.member.service.MemberProvider
-//import com.prgrms2.java.bitta.feed.service.FeedProvider
+//import org.tenten.bittakotlin.feed.service.FeedProvider
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
