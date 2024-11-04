@@ -1,23 +1,20 @@
 package org.tenten.bittakotlin.feed.service
 
-import org.tenten.bittakotlin.feed.dto.FeedDTO
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.web.multipart.MultipartFile
 import org.tenten.bittakotlin.feed.dto.FeedRequestDto
+import org.tenten.bittakotlin.feed.dto.FeedResponseDto
 
 interface FeedService {
-    fun read(id: Long): FeedDTO
+    fun get(id: Long): FeedResponseDto.Read
 
-    fun readAll(pageable: Pageable, username: String?, title: String?): Page<FeedDTO>
+    fun getAll(pageable: Pageable, username: String?, title: String?): Page<FeedResponseDto.Read>
 
-    fun insert(feedDto: FeedDTO, files: List<MultipartFile>)
+    fun getRandom(pageSize: Int): Page<FeedResponseDto.Read>
 
-    fun update(feedDto: FeedRequestDto.Modify, filesToUpload: List<MultipartFile>, filesToDeletes: List<String>)
+    fun save(requestDto: FeedRequestDto.Create): FeedResponseDto.Create
+
+    fun update(feedId: Long, requestDto: FeedRequestDto.Modify): FeedResponseDto.Modify
 
     fun delete(id: Long)
-
-    fun readRandomFeeds(limit: Int): List<FeedDTO>
-
-    fun checkAuthority(feedId: Long, memberId: String): Boolean
 }
