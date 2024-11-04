@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  backend:
+    image: ${{ secrets.DOCKER_USERNAME }}/bitta-kotlin:latest
+    container_name: backend
+    ports:
+      - "8080:80"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://${{ secrets.DB_HOST }}:3306/${{ secrets.DB_NAME }}
+      SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USERNMAE }}
+      SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      - db
+    networks:
+      - bitta-network
+
+  frontend:
+    image: ${{ secrets.DOCKER_USERNAME }}/bitta-front:latest
+    container_name: frontend
+    ports:
+      - "3000:80"
+    networks:
+      - bitta-network
+
+  db:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+      MYSQL_USER: ${{ secrets.DB_USERNMAE }}
+      MYSQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
+    ports:
+      - "3306:3306"
+    networks:
+      - bitta-network
+
+networks:
+  bitta-network:
+    driver: bridge

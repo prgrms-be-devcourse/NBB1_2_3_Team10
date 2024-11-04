@@ -4,6 +4,7 @@ import JWTFilter
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -75,6 +76,7 @@ class SecurityConfig(
                     "/api/member/join",
                     "/api/member/reissue").permitAll()
                 .requestMatchers("/api/member/{id}/**").hasRole("USER")
+                .requestMatchers(HttpMethod.DELETE,"/api/member/{id}").authenticated()
                 .anyRequest().authenticated()
         }
 

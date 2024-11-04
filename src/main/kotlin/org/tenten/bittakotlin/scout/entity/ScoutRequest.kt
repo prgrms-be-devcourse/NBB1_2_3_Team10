@@ -1,10 +1,9 @@
 package org.tenten.bittakotlin.scout.entity
 
-//import com.prgrms2.java.bitta.feed.entity.Feed
-//import com.prgrms2.java.bitta.member.entity.Member
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
+import org.tenten.bittakotlin.member.entity.Member
 import java.time.LocalDateTime
 
 @Entity
@@ -14,9 +13,10 @@ data class ScoutRequest(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
-    @ManyToOne
-    @JoinColumn(name = "feed_id", nullable = false)
-    val feed: Feed,
+    //feed 마이그레이션 종료가 안되어 일단 주석처리 하겠습니다
+    //@ManyToOne
+    //@JoinColumn(name = "feed_id", nullable = false)
+    //val feed: Feed,
 
     @ManyToOne
     @JoinColumn(name = "sender_id", nullable = false)

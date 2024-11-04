@@ -4,9 +4,9 @@ import java.time.LocalDateTime
 
 data class ScoutDTO(
     val id: Long? = null,
-    val feedId: Long? = null,
-    val senderId: Long? = null,
-    val receiverId: Long? = null,
+    val feedId: Long,
+    val senderId: Long,
+    val receiverId: Long,
     val description: String? = null,
     val sentAt: LocalDateTime? = null
 )

@@ -1,21 +1,25 @@
 package org.tenten.bittakotlin.member.service
 
+
 import lombok.RequiredArgsConstructor
 import lombok.extern.slf4j.Slf4j
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import org.tenten.bittakotlin.member.dto.MemberRequestDTO
 import org.tenten.bittakotlin.member.dto.MemberResponseDTO
 import org.tenten.bittakotlin.member.entity.Member
+import org.tenten.bittakotlin.member.exception.MemberException
 import org.tenten.bittakotlin.member.repository.MemberRepository
+import org.tenten.bittakotlin.profile.service.ProfileService
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-class MemberServiceImpl (
+class MemberServiceImpl  (
     private val memberRepository: MemberRepository,
-    private val bCryptPasswordEncoder: BCryptPasswordEncoder
+    private val bCryptPasswordEncoder: BCryptPasswordEncoder,
+    private val profileService: ProfileService
+  
 ): MemberService {
 
     override fun join(joinDTO: MemberRequestDTO.Join) {
@@ -24,10 +28,9 @@ class MemberServiceImpl (
         val nickname = joinDTO.nickname
         val address = joinDTO.address
 
-        val isExist = memberRepository.existsByUsername(username)
-
-        if (isExist) {
-            return
+        // 사용자 이름 중복 검사
+        if (memberRepository.existsByUsername(username)) {
+            throw MemberException.DUPLICATE.get() // 중복 시 예외 발생
         }
 
         val data = Member(
@@ -38,12 +41,19 @@ class MemberServiceImpl (
             role = "ROLE_USER"
         )
 
+        //memberRepository.save(data)
+
+        //Member 생성시 Profile 도 같이 생성되게 코드 생성
+        val savedMember = memberRepository.save(data)
+
+        profileService.createDefaultProfile(savedMember)
+
         memberRepository.save(data)
     }
 
     override fun read(id: Long): MemberResponseDTO.Information {
         val member = memberRepository.findById(id)
-            .orElseThrow { IllegalArgumentException("Member not found.") }
+            .orElseThrow { MemberException.NOT_FOUND.get() }
 
         return MemberResponseDTO.Information(
             id = member.id!!,
@@ -55,12 +65,12 @@ class MemberServiceImpl (
 
     override fun updateMember(request: MemberRequestDTO.UpdateMemberRequest) {
         val member = memberRepository.findById(request.id)
-            .orElseThrow { IllegalArgumentException("Member not found.") }
+            .orElseThrow { MemberException.NOT_FOUND.get() }
 
         // 비밀번호 변경 요청이 있을 경우
         if (request.beforePassword != null && request.afterPassword != null) {
             if (!bCryptPasswordEncoder.matches(request.beforePassword, member.password)) {
-                throw IllegalArgumentException("Incorrect previous password.")
+                throw MemberException.BAD_CREDENTIAL.get()
             }
             // 비밀번호 암호화 및 업데이트
             member.password = bCryptPasswordEncoder.encode(request.afterPassword)
@@ -74,4 +84,13 @@ class MemberServiceImpl (
 
         memberRepository.save(member) // 수정 후 저장
     }
+
+    override fun remove(id: Long) {
+
+        if (!memberRepository.existsById(id)) {
+            throw MemberException.NOT_FOUND.get()
+        }
+        memberRepository.deleteById(id)
+    }
+
 }
