@@ -63,8 +63,8 @@ class MemberServiceImpl  (
         )
     }
 
-    override fun updateMember(request: MemberRequestDTO.UpdateMemberRequest) {
-        val member = memberRepository.findById(request.id)
+    override fun updateMember(request: MemberRequestDTO.UpdateMemberRequest, id: Long) {
+        val member = memberRepository.findById(id)
             .orElseThrow { MemberException.NOT_FOUND.get() }
 
         // 비밀번호 변경 요청이 있을 경우
@@ -80,7 +80,7 @@ class MemberServiceImpl  (
         request.nickname?.let { member.nickname = it }
         request.address?.let { member.address = it }
 
-        member.username = request.username // 아이디는 항상 업데이트
+        // username은 변경할 수 없으므로 해당 줄 제거
 
         memberRepository.save(member) // 수정 후 저장
     }

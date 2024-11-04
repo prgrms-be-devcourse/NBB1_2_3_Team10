@@ -6,12 +6,13 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.annotation.*
 import org.tenten.bittakotlin.member.dto.MemberRequestDTO
 import org.tenten.bittakotlin.member.dto.MemberResponseDTO
+import org.tenten.bittakotlin.member.exception.MemberException
 import org.tenten.bittakotlin.member.repository.MemberRepository
 import org.tenten.bittakotlin.member.service.MemberService
 import org.tenten.bittakotlin.security.jwt.JWTUtil
 
 @RestController
-@RequestMapping("/api/member")
+@RequestMapping("/api/v1/member")
 class MemberController(
     private val memberService: MemberService,
     private val jwtUtil: JWTUtil,
@@ -32,16 +33,30 @@ class MemberController(
         return ResponseEntity(memberInfo, HttpStatus.OK)
     }
 
-    // 회원 정보 업데이트
+
     @PutMapping("/{id}")
     fun updateMember(
         @PathVariable id: Long,
-        @RequestBody updateRequest: MemberRequestDTO.UpdateMemberRequest
+        @RequestBody updateRequest: MemberRequestDTO.UpdateMemberRequest,
+        @RequestHeader("access") token: String // JWT 토큰을 헤더에서 추출
     ): ResponseEntity<Void> {
-        // id는 updateRequest에서 가져오는 것이 아니라, PathVariable로 받아온 id를 그대로 사용
-        memberService.updateMember(updateRequest.copy(id = id)) // copy() 메서드를 사용하여 새로운 인스턴스를 생성
+        // 현재 로그인한 사용자 username 추출
+        val usernameFromToken = jwtUtil.getUsername(token)
+
+        // id로 회원 정보 조회
+        val member = memberRepository.findById(id)
+            .orElseThrow { MemberException.NOT_FOUND.get() }
+
+        // username 비교
+        if (member.username != usernameFromToken) {
+            throw AccessDeniedException("You don't have permission to update this member.")
+        }
+
+        // 유효성 검증 후 회원 정보 업데이트
+        memberService.updateMember(updateRequest, id) // id를 포함하여 업데이트 메서드 호출
         return ResponseEntity.ok().build()
     }
+
 
     @DeleteMapping("/{id}")
     fun remove(@PathVariable id: Long, @RequestHeader("access") token: String): ResponseEntity<String> {
