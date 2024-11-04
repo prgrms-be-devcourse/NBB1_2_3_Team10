@@ -12,11 +12,14 @@ import org.tenten.bittakotlin.profile.dto.ProfileDTO
 import org.tenten.bittakotlin.profile.entity.Profile
 import org.tenten.bittakotlin.profile.repository.ProfileRepository
 import org.tenten.bittakotlin.profile.constant.Job
+import org.tenten.bittakotlin.security.service.PrincipalProvider
 
 
 @Service
 class ProfileServiceImpl(
     private val profileRepository: ProfileRepository,
+    private val memberRepository: MemberRepository,
+    private val principalProvider: PrincipalProvider
 ) : ProfileService {
 
     //Member 생성시 Profile 도 같이 생성
@@ -91,6 +94,11 @@ class ProfileServiceImpl(
 
     override fun getByNickname(nickname: String): Profile {
         return profileRepository.findByNickname(nickname)
+            .orElseThrow { NoSuchElementException() }
+    }
+
+    override fun getByPrincipal(): Profile {
+        return profileRepository.findByUsername(principalProvider.getUsername()!!)
             .orElseThrow { NoSuchElementException() }
     }
 

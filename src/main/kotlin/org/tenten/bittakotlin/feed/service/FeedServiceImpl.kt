@@ -1,141 +1,158 @@
 package org.tenten.bittakotlin.feed.service
 
-import org.tenten.bittakotlin.feed.dto.FeedDTO
+import com.prgrms2.java.bitta.feed.exception.FeedException
 import org.tenten.bittakotlin.feed.entity.Feed
-import org.tenten.bittakotlin.feed.exception.FeedException
+import org.tenten.bittakotlin.feed.constant.FeedError
 import org.tenten.bittakotlin.feed.repository.FeedRepository
-import org.tenten.bittakotlin.media.service.MediaService
 import lombok.RequiredArgsConstructor
 import lombok.extern.slf4j.Slf4j
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.multipart.MultipartFile
 import org.tenten.bittakotlin.feed.dto.FeedRequestDto
-import org.tenten.bittakotlin.member.repository.MemberRepository
-import java.util.*
-import java.util.stream.Collectors
+import org.tenten.bittakotlin.feed.dto.FeedResponseDto
+import org.tenten.bittakotlin.profile.entity.Profile
+import org.tenten.bittakotlin.profile.service.ProfileService
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 class FeedServiceImpl(
     private val feedRepository: FeedRepository,
-    private val mediaService: MediaService,
-    private val memberRepository: MemberRepository,
+
+    private val profileService: ProfileService,
+
+    private val feedMediaService: FeedMediaService,
 ) : FeedService {
-
     @Transactional(readOnly = true)
-    override fun read(id: Long): FeedDTO {
+    override fun get(id: Long): FeedResponseDto.Read {
         val feed = feedRepository.findById(id)
-            .orElseThrow { FeedException.CANNOT_FOUND.get() }
+            .orElseThrow { FeedException(FeedError.CANNOT_FOUND) }
 
-        return entityToDto(feed)
+        return toReadResponseDto(feed)
     }
-
 
     @Transactional(readOnly = true)
-    override fun readAll(pageable: Pageable, username: String?, title: String?): Page<FeedDTO> {
-        val feeds = when {
-            !username.isNullOrBlank() && !title.isNullOrBlank() ->
-                feedRepository.findAllLikeUsernameAndTitleOrderByIdDesc(username, title, pageable)
-            !username.isNullOrBlank() ->
-                feedRepository.findAllLikeUsernameOrderByIdDesc(username, pageable)
-            !title.isNullOrBlank() ->
-                feedRepository.findAllLikeTitleOrderByIdDesc(title, pageable)
-            else ->
-                feedRepository.findAllByOrderByIdDesc(pageable)
+    override fun getAll(pageable: Pageable, username: String?, title: String?): Page<FeedResponseDto.Read> {
+        val feeds: Page<Feed> = if (!username.isNullOrBlank() && !title.isNullOrBlank()) {
+            feedRepository.findAllLikeNicknameAndTitleOrderByIdDesc(username, title, pageable)
+        } else if (!username.isNullOrBlank()) {
+            feedRepository.findAllLikeNicknameOrderByIdDesc(username, pageable)
+        } else if (!title.isNullOrBlank()) {
+            feedRepository.findAllLikeTitleOrderByIdDesc(title, pageable)
+        } else {
+            feedRepository.findAllByOrderByIdDesc(pageable)
         }
 
-        return feeds.takeIf { it.hasContent() }
-            ?.map { entityToDto(it) }
-            ?: throw FeedException.CANNOT_FOUND.get()
+        if (feeds.isEmpty) {
+            throw FeedException(FeedError.CANNOT_FOUND)
+        }
+
+        return feeds.map { feed -> toReadResponseDto(feed) }
+    }
+
+    override fun getRandom(pageSize: Int): Page<FeedResponseDto.Read> {
+        val totalElements = feedRepository.count()
+
+        if (totalElements == 0L) {
+            throw FeedException(FeedError.CANNOT_FOUND)
+        }
+
+        val totalPages: Int = ((totalElements - 1) / pageSize).toInt()
+
+        val randomPage: Int = (0 until totalPages).random()
+
+        val pageable: Pageable = PageRequest.of(randomPage, pageSize)
+
+        val feeds: Page<Feed> = feedRepository.findAllByOrderByIdDesc(pageable)
+
+        return PageImpl(feeds.content.shuffled(), pageable, feeds.totalElements)
+            .map { feed -> toReadResponseDto(feed) }
+    }
+
+    @Transactional
+    override fun save(requestDto: FeedRequestDto.Create): FeedResponseDto.Create {
+        val profile: Profile = profileService.getByPrincipal()
+
+        val feed: Feed = feedRepository.save(Feed(
+            title = requestDto.title,
+            content = requestDto.content,
+            profile = profile
+        ))
+
+        return if (requestDto.medias != null) {
+            FeedResponseDto.Create(
+                medias = feedMediaService.save(feed, profile, requestDto.medias))
+        } else {
+            FeedResponseDto.Create(emptyList())
+        }
     }
 
 
-    @Transactional
-    override fun insert(feedDTO: FeedDTO, files: List<MultipartFile>) {
-        if (feedDTO.id != null) {
-            throw FeedException.BAD_REQUEST.get()
-        }
-
-        var feed = dtoToEntity(feedDTO)
-        feed = feedRepository.save(feed)
-
-
-        mediaService.upload(files, feed.id)
-    }
-
-
 
     @Transactional
-    override fun update(feedDto: FeedRequestDto.Modify, filesToUpload: List<MultipartFile>, filesToDeletes: List<String>) {
-        val feed = feedDto.id?.let {
-            feedRepository.findById(it)
-                .orElseThrow { FeedException.CANNOT_FOUND.get() }
+    override fun update(feedId: Long, requestDto: FeedRequestDto.Modify): FeedResponseDto.Modify {
+        val profile: Profile = profileService.getByPrincipal()
+
+        val feed: Feed = feedRepository.findById(feedId)
+            .orElseThrow { FeedException(FeedError.CANNOT_FOUND) }
+
+        if (profile == feed.profile) {
+            throw FeedException(FeedError.CANNOT_MODIFY_BAD_AUTHORITY)
         }
 
-        feed?.title = feedDto.title.toString()
-        feed?.content = feedDto.content
-
-        if (!filesToDeletes.isNullOrEmpty()) {
-            val deleteMedias = mediaService.getMedias(filesToDeletes)
-            mediaService.deleteExistFiles(deleteMedias)
-        }
-
-        feed?.clearMedias()
-        mediaService.uploads(filesToUpload, feedDto.id)
+        feed.title = requestDto.title
+        feed.content = requestDto.content
 
         feedRepository.save(feed)
+
+        val uploads = if (requestDto.uploads != null) {
+            feedMediaService.save(feed, profile, requestDto.uploads)
+        } else {
+            null
+        }
+
+        if (requestDto.deletes != null) {
+            feedMediaService.delete(requestDto.deletes)
+        }
+
+        return if (uploads != null) {
+            FeedResponseDto.Modify(
+                medias = uploads
+            )
+        } else {
+            FeedResponseDto.Modify(emptyList())
+        }
     }
 
 
     @Transactional
-    override fun delete(id: Long?) {
-        val feed: Feed = feedRepository.findById(id)
-            .orElseThrow(FeedException.CANNOT_FOUND::get)
+    override fun delete(id: Long) {
+        val profile: Profile = profileService.getByPrincipal()
 
-        if (feed.getMedias() != null) {
-            mediaService.deleteAll(feed.getMedias())
+        val feed: Feed = feedRepository.findById(id)
+            .orElseThrow { FeedException(FeedError.CANNOT_FOUND) }
+
+        if (profile == feed.profile) {
+            throw FeedException(FeedError.CANNOT_DELETE_BAD_AUTHORITY)
         }
 
-        feed.setMember(null)
+        feedMediaService.delete(id)
+
         feedRepository.delete(feed)
     }
 
-    @Transactional(readOnly = true)
-    override fun readRandomFeeds(limit: Int): List<FeedDTO> {
-        val feeds: List<Feed> = feedRepository.findRandomFeeds(limit)
-        return feeds.stream()
-            .map<R> { feed: Feed -> this.entityToDto(feed) }
-            .collect<List<FeedDTO>, Any>(Collectors.toList<Any>())
-    }
-
-    override fun checkAuthority(feedId: Long, username: String): Boolean {
-        return feedRepository.existsByIdAndMember_Username(feedId, username)
-    }
-
-    private fun dtoToEntity(feedDto: FeedDTO): Feed {
-        return Feed(
-            id = feedDto.id,
-            title = feedDto.title,
-            content = feedDto.content,
-            createdAt = feedDto.createdAt!!,
-            member = memberRepository.findById(feedDto.memberId),
-            medias = mediaService.getMedias(feedDto.medias)
-        )
-    }
-
-    private fun entityToDto(feed: Feed): FeedDTO {
-        return FeedDTO(
-            id = feed.id,
+    private fun toReadResponseDto(feed: Feed): FeedResponseDto.Read {
+        return FeedResponseDto.Read(
+            id = feed.id!!,
             title = feed.title,
             content = feed.content,
-            createdAt = feed.createdAt,
-            memberId = feed.member.id!!,
-            medias = mediaService.getUrls(feed.medias)
+            author = feed.profile.nickname,
+            createdAt = feed.createdAt!!,
+            medias = feedMediaService.getMedias(feed.id!!)
         )
     }
-
 }

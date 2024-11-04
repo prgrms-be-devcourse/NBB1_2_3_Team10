@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service
 import org.tenten.bittakotlin.media.constant.MediaError
 import org.tenten.bittakotlin.media.constant.MediaType
 import org.tenten.bittakotlin.media.dto.MediaRequestDto
+import org.tenten.bittakotlin.media.dto.MediaResponseDto
 import org.tenten.bittakotlin.media.entity.Media
 import org.tenten.bittakotlin.media.exception.MediaException
 import org.tenten.bittakotlin.media.repository.MediaRepository
+import org.tenten.bittakotlin.profile.entity.Profile
 import java.util.*
 
 @Service
@@ -29,40 +31,52 @@ class MediaServiceImpl(
         private val logger: Logger = LoggerFactory.getLogger(MediaServiceImpl::class.java)
     }
 
-    override fun read(requestDto: MediaRequestDto.Read): String {
+    override fun read(requestDto: MediaRequestDto.Read): MediaResponseDto.Read {
         val result: Media = mediaRepository.findByFilename(requestDto.filename)
             .orElseThrow { MediaException(MediaError.CANNOT_FOUND) }
 
-        return s3Service.getReadUrl(result.filename)
+        return MediaResponseDto.Read(
+            filename = result.filename,
+            url = s3Service.getReadUrl(result.filename)
+        )
     }
 
-    override fun upload(requestDto: MediaRequestDto.Upload): String {
+    override fun upload(requestDto: MediaRequestDto.Upload, profile: Profile): MediaResponseDto.Upload {
         val filename: String = UUID.randomUUID().toString()
         val filetype: MediaType = checkMimetype(requestDto.mimetype)
         val filesize: Int = checkFileSize(requestDto.filesize, filetype)
 
-        mediaRepository.save(Media(
+        val media: Media = mediaRepository.save(Media(
             filename = filename,
             filetype = filetype,
-            filesize = filesize
+            filesize = filesize,
+            profile = profile
         ))
 
-        return s3Service.getUploadUrl(filename, requestDto.mimetype)
+        return MediaResponseDto.Upload(
+            media = media,
+            url = s3Service.getUploadUrl(filename, requestDto.mimetype)
+        )
     }
 
     @Transactional
-    override fun delete(requestDto: MediaRequestDto.Delete) {
+    override fun delete(requestDto: MediaRequestDto.Delete): Long {
         val filename: String = requestDto.filename
-        val username: String = requestDto.username
-        val result: Media = mediaRepository.findByFilenameAndUsername(filename, username)
+
+        val result: Media = mediaRepository.findByFilename(filename)
             .orElseThrow {
-                logger.warn("The file data does not exist in DB: filename=$filename, username=$username")
+                logger.warn("The file data does not exist in DB: filename=$filename")
 
                 MediaException(MediaError.CANNOT_FOUND)
             }
 
+        val id = result.id!!
+
         s3Service.delete(result.filename)
-        mediaRepository.deleteById(result.id!!)
+
+        mediaRepository.deleteById(id)
+
+        return id
     }
 
     private fun checkMimetype(mimetype: String): MediaType {

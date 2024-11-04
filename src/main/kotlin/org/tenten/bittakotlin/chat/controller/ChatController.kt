@@ -1,5 +1,7 @@
 package org.tenten.bittakotlin.chat.controller
 
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.simp.SimpMessagingTemplate
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.tenten.bittakotlin.chat.dto.ChatRequestDto
 import org.tenten.bittakotlin.chat.dto.ChatResponseDto
@@ -28,17 +31,20 @@ class ChatController(
     private val chatRoomService: ChatRoomService
 ) {
     @MessageMapping("/send")
-    fun send(@RequestBody requestDto: ChatRequestDto.Send): Unit {
+    fun send(requestDto: ChatRequestDto.Send): Unit {
         val responseDto: ChatResponseDto.Send = chatService.save(requestDto)
 
         simpMessagingTemplate.convertAndSend("/room/${responseDto.chatRoomId}", responseDto)
     }
 
     @GetMapping("/room")
-    fun read(@RequestBody requestDto: ChatRequestDto.Read): ResponseEntity<Map<String, Any>> {
+    fun read(@RequestParam(defaultValue = "0") page: Int, @RequestParam(defaultValue = "20") size: Int
+             , @RequestBody requestDto: ChatRequestDto.Read): ResponseEntity<Map<String, Any>> {
+        val pageable: Pageable = PageRequest.of(page, size)
+
         return ResponseEntity.ok(mapOf(
-            "message" to "파일 조회 링크를 성공적으로 생성했습니다.",
-            "result" to chatService.get(requestDto)
+            "message" to "채팅 목록을 성공적으로 생성했습니다.",
+            "result" to chatService.get(pageable, requestDto)
         ))
     }
 

@@ -5,6 +5,7 @@ import org.hibernate.annotations.ColumnDefault
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import org.tenten.bittakotlin.media.constant.MediaType
+import org.tenten.bittakotlin.profile.entity.Profile
 import java.time.LocalDateTime
 
 @Entity
@@ -29,9 +30,7 @@ data class Media (
     @Column(nullable = false, updatable = false)
     val savedAt: LocalDateTime? = null,
 
-    /*
-        회원과 1:N으로 연결할 예정입니다.
-        임시로 문자열로 구성해놓았습니다.
-     */
-    val member: String? = null
+    @ManyToOne
+    @JoinColumn
+    val profile: Profile
 )

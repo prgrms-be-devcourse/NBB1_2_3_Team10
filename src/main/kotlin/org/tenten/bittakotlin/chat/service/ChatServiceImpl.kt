@@ -2,6 +2,8 @@ package org.tenten.bittakotlin.chat.service
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Slice
 import org.springframework.stereotype.Service
 import org.tenten.bittakotlin.chat.constant.ChatError
 import org.tenten.bittakotlin.chat.dto.ChatRequestDto
@@ -25,20 +27,20 @@ class ChatServiceImpl(
         private val logger: Logger = LoggerFactory.getLogger(ChatServiceImpl::class.java)
     }
 
-    override fun get(requestDto: ChatRequestDto.Read): List<ChatResponseDto.Read> {
+    override fun get(pageable: Pageable, requestDto: ChatRequestDto.Read): List<ChatResponseDto.Read> {
         var result: MutableList<ChatResponseDto.Read> = mutableListOf()
 
         try {
             val chatRoom: ChatRoom = chatRoomService.getChatRoomByNicknames(requestDto.sender, requestDto.receiver)
-            val chats: List<Chat> = chatRepository.findAllByChatRoomId(chatRoom.id!!)
+            val chats: Slice<Chat> = chatRepository.findAllByChatRoomIdOrderByIdDesc(chatRoom.id!!, pageable)
 
-            chats.forEach { c -> result.add(
+            chats.forEach { chat -> result.add(
                 ChatResponseDto.Read(
-                    chatId = c.id!!,
-                    sender = c.profile.nickname,
-                    message = c.message,
-                    deleted = c.deleted,
-                    chatAt = c.createdAt!!
+                    chatId = chat.id!!,
+                    sender = chat.profile.nickname,
+                    message = chat.message,
+                    deleted = chat.deleted,
+                    chatAt = chat.createdAt!!
                 ))
             }
         } catch (e: NoSuchElementException) {
