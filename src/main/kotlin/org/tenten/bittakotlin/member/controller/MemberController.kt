@@ -12,7 +12,7 @@ import org.tenten.bittakotlin.member.service.MemberService
 import org.tenten.bittakotlin.security.jwt.JWTUtil
 
 @RestController
-@RequestMapping("/api/member")
+@RequestMapping("/api/v1/member")
 class MemberController(
     private val memberService: MemberService,
     private val jwtUtil: JWTUtil,
