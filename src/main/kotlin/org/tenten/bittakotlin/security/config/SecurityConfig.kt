@@ -72,11 +72,23 @@ class SecurityConfig(
             auth
                 .requestMatchers(
                     "/",
-                    "/api/member/login",
-                    "/api/member/join",
-                    "/api/member/reissue").permitAll()
-                .requestMatchers("/api/member/{id}/**").hasRole("USER")
+                    "/api/v1/member/login",
+                    "/member/login",
+                    "/api/v1/member/join",
+                    "/member/join",
+                    "/api/v1/member/reissue").permitAll()
+
+                .requestMatchers(
+                    "/api/v1/member/{id}/**",
+                    "member/{id}/**",
+                    "/api/v1/job-post/**",
+                    "/job-post/**",
+                    "/api/v1/like/**").hasRole("USER")
+
                 .requestMatchers(HttpMethod.DELETE,"/api/member/{id}").authenticated()
+                .requestMatchers(HttpMethod.PUT,"/api/member/{id}").authenticated()
+                .requestMatchers("/api/v1/chat/**").authenticated()
+
                 .anyRequest().authenticated()
         }
 
