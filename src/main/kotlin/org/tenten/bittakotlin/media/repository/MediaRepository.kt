@@ -11,7 +11,4 @@ import java.util.Optional
 interface MediaRepository : JpaRepository<Media, Long> {
     @Query("SELECT m FROM Media m WHERE m.filename = :filename")
     fun findByFilename(@Param("filename") filename: String): Optional<Media>
-
-    @Query("SELECT m FROM Media m WHERE m.filename = :filename AND m.member = :member")
-    fun findByFilenameAndUsername(@Param("filename") filename: String, @Param("member") member: String): Optional<Media>
 }

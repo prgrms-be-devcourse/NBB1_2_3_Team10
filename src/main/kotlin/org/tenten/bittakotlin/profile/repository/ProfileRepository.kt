@@ -12,4 +12,7 @@ interface ProfileRepository : JpaRepository<Profile, Long> {
 
     @Query("SELECT p FROM Profile p WHERE p.nickname = :nickname")
     fun findByNickname(@Param("nickname") nickname: String): Optional<Profile>
+
+    @Query("SELECT p FROM Profile p WHERE p.member.username = :username")
+    fun findByUsername(@Param("username") username: String): Optional<Profile>
 }
