@@ -31,8 +31,6 @@ class MemberRequestDTO {
 
     @Schema(title = "회원정보 수정 및 비밀번호 변경 DTO", description = "회원정보 수정 및 비밀번호 변경 요청에 사용하는 DTO입니다.")
     data class UpdateMemberRequest(
-        @Schema(title = "회원 ID (PK)", description = "수정할 회원의 기본키입니다.", example = "1")
-        val id: Long,
 
         @Schema(title = "아이디", description = "비밀번호를 변경할 아이디입니다.", example = "username")
         val username: String,
