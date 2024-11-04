@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.tenten.bittakotlin.scout.entity.ScoutRequest
 
 interface ScoutRequestRepository : JpaRepository<ScoutRequest, Long> {
-    fun findBySenderIdOrderById(senderId: Long, pageable: Pageable): Page<ScoutRequest>
-    fun findByReceiverIdOrderById(receiverId: Long, pageable: Pageable): Page<ScoutRequest>
+    fun findBySender_IdOrderById(senderId: Long, pageable: Pageable): Page<ScoutRequest>
+    fun findByReceiver_IdOrderById(receiverId: Long, pageable: Pageable): Page<ScoutRequest>
 }

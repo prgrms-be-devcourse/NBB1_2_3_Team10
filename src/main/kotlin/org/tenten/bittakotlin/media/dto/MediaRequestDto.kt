@@ -25,9 +25,6 @@ class MediaRequestDto {
     )
 
     data class Delete (
-        @field:NotBlank(message = "회원명이 비어있습니다.")
-        val username: String,
-
         @field:NotBlank(message = "파일명이 비어있습니다.")
         val filename: String
     )

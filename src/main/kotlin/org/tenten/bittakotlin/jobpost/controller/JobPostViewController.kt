@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 
 @Controller
-@RequestMapping("/jobpost")
+@RequestMapping("/job-post")
 class JobPostViewController {
     @GetMapping
     fun showJobpostPage(model: Model?): String {
