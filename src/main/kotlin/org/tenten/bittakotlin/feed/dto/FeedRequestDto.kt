@@ -1,33 +1,23 @@
 package org.tenten.bittakotlin.feed.dto
 
-import io.swagger.v3.oas.annotations.media.Schema
-import jakarta.validation.constraints.Min
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
-import jakarta.validation.constraints.Size
-import lombok.AllArgsConstructor
-import lombok.Builder
-import lombok.Data
-import lombok.NoArgsConstructor
+import org.tenten.bittakotlin.media.dto.MediaRequestDto
 
 class FeedRequestDto {
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    class Modify {
-        @Schema(title = "피드 ID (PK)", description = "피드의 고유 ID 입니다.", example = "1", minimum = "1")
-        val id: @Min(value = 1, message = "ID는 0 또는 음수가 될 수 없습니다.") Long? = null
+    data class Create (
+        val title: String,
 
-        @Schema(title = "피드 제목", description = "피드 제목입니다.", example = "Feed Title", minimum = "1", maximum = "50")
-        val title: @NotBlank(message = "제목은 비우거나, 공백이 될 수 없습니다.") @Size(
-            min = 1,
-            max = 50,
-            message = "제목은 1 ~ 50자 이하여야 합니다."
-        ) String? = null
+        val content: String,
 
-        @Schema(title = "피드 내용", description = "피드 내용입니다.", example = "Feed Content")
-        @Builder.Default
-        val content: @NotNull String = ""
-    }
+        val medias: List<MediaRequestDto.Upload>?
+    )
+
+    data class Modify (
+        val title: String,
+
+        val content: String,
+
+        val uploads: List<MediaRequestDto.Upload>?,
+
+        val deletes: List<MediaRequestDto.Delete>?
+    )
 }

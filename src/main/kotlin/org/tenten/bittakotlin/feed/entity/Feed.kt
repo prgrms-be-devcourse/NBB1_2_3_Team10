@@ -1,10 +1,10 @@
 package org.tenten.bittakotlin.feed.entity
 
-import org.tenten.bittakotlin.media.entity.Media
-import org.tenten.bittakotlin.member.entity.Member
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
+import org.tenten.bittakotlin.profile.entity.Profile
 import java.time.LocalDateTime
 import java.util.*
 
@@ -18,22 +18,21 @@ data class Feed(
     @Column(nullable = false, length = 50)
     var title: String,
 
-    @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     var content: String,
 
     @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false)
-    var member: Optional<Member>,
+    @JoinColumn(name = "profile_id", nullable = false)
+    val profile: Profile,
+
+    @OneToMany(mappedBy = "feed", cascade = [CascadeType.ALL])
+    val feedMedias: List<FeedMedia> = mutableListOf(),
 
     @CreatedDate
     @Column(updatable = false, nullable = false)
-    var createdAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: LocalDateTime? = null,
 
-    @OneToMany(mappedBy = "feed", cascade = [CascadeType.REMOVE])
-    var medias: MutableList<Media> = mutableListOf()
-) {
-    fun clearMedias() {
-        medias.clear()
-    }
-}
+    @LastModifiedDate
+    @Column(updatable = true, nullable = false)
+    var updatedAt: LocalDateTime? = null
+)

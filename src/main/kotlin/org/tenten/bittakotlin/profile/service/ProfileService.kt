@@ -11,4 +11,6 @@ interface ProfileService {
     fun createDefaultProfile(member: Member): ProfileDTO
 
     fun getByNickname(nickname: String): Profile
+
+    fun getByPrincipal(): Profile
 }
