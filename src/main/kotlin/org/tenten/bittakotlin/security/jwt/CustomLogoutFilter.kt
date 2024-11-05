@@ -31,7 +31,7 @@ class CustomLogoutFilter(
         val requestUri = request.requestURI
         logger.info("Incoming request URI: $requestUri")
 
-        if (!requestUri.matches("^/api/member/logout$".toRegex())) {
+        if (!requestUri.matches("^/api/v1/member/logout$".toRegex())) {
             logger.warn("Invalid logout request URI: $requestUri")
             filterChain.doFilter(request, response)
             return
