@@ -13,7 +13,9 @@ import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.util.StreamUtils
 import org.tenten.bittakotlin.member.dto.MemberRequestDTO
-import org.tenten.bittakotlin.member.dto.MemberResponseDTO
+import org.tenten.bittakotlin.profile.entity.Profile
+import org.tenten.bittakotlin.profile.service.ProfileService
+
 import org.tenten.bittakotlin.security.entity.RefreshEntity
 import org.tenten.bittakotlin.security.repository.RefreshRepository
 import java.io.IOException
@@ -23,7 +25,8 @@ import java.util.*
 class LoginFilter(
     private val authenticationManager: AuthenticationManager,
     private val jwtUtil: JWTUtil,
-    private val refreshRepository: RefreshRepository
+    private val refreshRepository: RefreshRepository,
+    private val profileService: ProfileService
 ) : UsernamePasswordAuthenticationFilter() {
 
     override fun attemptAuthentication(request: HttpServletRequest, response: HttpServletResponse): Authentication {
@@ -69,6 +72,12 @@ class LoginFilter(
         // 응답 설정
         response.setHeader("access", access)
         response.addCookie(createCookie("refresh", refresh))
+        
+        // 프로필 정보 설정
+        val profile: Profile = profileService.getByPrincipal()
+        response.addCookie(createPublicCookie("nickname", profile.nickname))
+        response.addCookie(createPublicCookie("profileUrl", profile.profileUrl!!))
+        
         response.status = HttpStatus.OK.value()
     }
 
@@ -97,8 +106,16 @@ class LoginFilter(
         return Cookie(key, value).apply {
             maxAge = 24 * 60 * 60
             // secure = true
-            // path = "/"
+            path = "/"
             isHttpOnly = true
+        }
+    }
+
+    private fun createPublicCookie(key: String, value: String): Cookie {
+        return Cookie(key, value).apply {
+            maxAge = 24 * 60 * 60
+            path = "/"
+            isHttpOnly = false
         }
     }
 }
