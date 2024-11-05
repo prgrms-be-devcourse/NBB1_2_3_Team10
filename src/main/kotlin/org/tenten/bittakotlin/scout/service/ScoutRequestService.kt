@@ -39,7 +39,7 @@ class ScoutRequestService(
     fun getSentScoutRequests(senderId: Long, pageable: Pageable): Page<ScoutDTO> {
         logger.info("Fetching sent scout requests for senderId=$senderId")
 
-        val sentRequests = scoutRequestRepository.findBySender_IdOrderById(senderId, pageable)
+        val sentRequests = scoutRequestRepository.findBySenderIdOrderById(senderId, pageable)
             .map { request -> entityToDto(request) }
 
         logger.info("Retrieved ${sentRequests.totalElements} sent scout requests for senderId=$senderId")
@@ -50,7 +50,7 @@ class ScoutRequestService(
     fun getReceivedScoutRequests(receiverId: Long, pageable: Pageable): Page<ScoutDTO> {
         logger.info("Fetching received scout requests for receiverId=$receiverId")
 
-        val receivedRequests = scoutRequestRepository.findByReceiver_IdOrderById(receiverId, pageable)
+        val receivedRequests = scoutRequestRepository.findByReceiverIdOrderById(receiverId, pageable)
             .map { request -> entityToDto(request) }
 
         logger.info("Retrieved ${receivedRequests.totalElements} received scout requests for receiverId=$receiverId")
