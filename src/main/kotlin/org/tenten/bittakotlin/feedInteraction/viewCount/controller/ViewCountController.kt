@@ -6,9 +6,11 @@ import org.tenten.bittakotlin.feedInteraction.viewCount.dto.ViewCountDTO
 import org.tenten.bittakotlin.feedInteraction.viewCount.service.ViewCountService
 
 
+
 @RestController
 @RequestMapping("/api/v1/feed/view")
 class ViewCountController(private val viewCountService: ViewCountService) {
+
     @PostMapping("/{feedId}")
     fun addView(@PathVariable feedId: Long): ResponseEntity<ViewCountDTO> {
         val viewCountDTO = viewCountService.addView(feedId)

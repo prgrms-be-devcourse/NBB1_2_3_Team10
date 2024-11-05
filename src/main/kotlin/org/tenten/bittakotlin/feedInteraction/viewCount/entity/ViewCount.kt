@@ -9,24 +9,15 @@ import org.tenten.bittakotlin.feed.entity.Feed
 
 
 @Entity
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 class ViewCount(
-    @field:JoinColumn(
-        name = "feed_id",
-        nullable = false
-    ) @field:OneToOne(fetch = FetchType.LAZY) var feed: Feed, count: Long
-) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private val id: Long = 0
+    val id: Long = 0L,
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "feed_id", nullable = false)
+    var feed: Feed,
 
     @Column(name = "count", nullable = false)
-    private var count = 0L
-
-    init {
-        this.count = count
-    }
-}
+    var count: Long = 0L
+)
