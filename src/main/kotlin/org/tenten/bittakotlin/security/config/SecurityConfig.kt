@@ -105,7 +105,7 @@ class SecurityConfig(
         http.addFilterBefore(JWTFilter(jwtUtil), LoginFilter::class.java)
 
         val loginFilter = LoginFilter(authenticationManager(), jwtUtil, refreshRepository, profileService)
-        loginFilter.setFilterProcessesUrl("/api/member/login")
+        loginFilter.setFilterProcessesUrl("/api/v1/member/login")
 
         http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter::class.java)
 
