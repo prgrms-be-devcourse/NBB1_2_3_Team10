@@ -86,11 +86,21 @@ jobs:
             # 새 컨테이너 실행
             docker stop $TARGET_CONTAINER || true
             docker rm $TARGET_CONTAINER || true
-            docker run -d --name $TARGET_CONTAINER -p 8080:8080 \
-              -e SPRING_PROFILES_ACTIVE=prod \
-              -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
-              -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
-              ${{ secrets.DOCKER_USERNAME }}/bitta-kotlin:latest
+
+            # 조건문을 사용해 컨테이너에 맞는 포트로 실행
+            if [ "$TARGET_CONTAINER" == "backend-blue" ]; then
+              docker run -d --name backend-blue -p 8081:8080 \
+                -e SPRING_PROFILES_ACTIVE=prod \
+                -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+                -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+                ${{ secrets.DOCKER_USERNAME }}/bitta-kotlin:latest
+            else
+              docker run -d --name backend-green -p 8082:8080 \
+                -e SPRING_PROFILES_ACTIVE=prod \
+                -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+                -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+                ${{ secrets.DOCKER_USERNAME }}/bitta-kotlin:latest
+            fi
 
             # Nginx 리로드하여 트래픽 전환
             sudo systemctl reload nginx
@@ -103,5 +113,6 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            cd ~/bitta-front
             docker-compose down
             docker-compose up -d

@@ -1,19 +1,17 @@
 version: '3'
 services:
-  backend-blue:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  backend:
+    container_name: backend-blue
+    image: publicdeveh/bitta-kotlin:latest
     ports:
-      - "8081:8080"
+      - "8081:8000"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
 
-  backend-green:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  backend_alternate:
+    container_name: backend-green
+    image: publicdeveh/bitta-kotlin:latest
     ports:
-      - "8082:8080"
+      - "8082:8000"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
