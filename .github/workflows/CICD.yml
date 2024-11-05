@@ -120,10 +120,7 @@ jobs:
 
       # 테스트 단계
       - name: Test Frontend Response
-        run: |
-          for i in {1..5}; do
-            curl --fail http://${{ secrets.EC2_HOST }} && break || sleep 15
-          done || exit 1
+        run: curl --fail http://${{ secrets.EC2_HOST }} || exit 1
 
       - name: Test Backend Response
         run: curl --fail http://${{ secrets.EC2_HOST }}/api/ || exit 1
