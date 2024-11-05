@@ -60,7 +60,7 @@ class JobPost(
     @Enumerated(EnumType.STRING)
     var workCategory: WorkCategory? = null, // 작품 카테고리
 
-    val auditionDate: LocalDate? = null, // 오디션 일자
+    val auditionDate: LocalDateTime? = null, // 오디션 일자
 
     val startDate: LocalDate? = null, // 촬영 기간 시작일
     val endDate: LocalDate? = null, // 촬영 기간 종료일
@@ -78,7 +78,7 @@ class JobPost(
     val apply: List<Apply> = mutableListOf(),
 
     @OneToMany(mappedBy = "jobPost", fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE], orphanRemoval = true)
-    val likes: List<Like> = mutableListOf()
+    val like: List<Like> = mutableListOf()
 ) {
 
     fun plusApplyCount() {

@@ -15,7 +15,7 @@ class Profile(
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
-    val member: Member,
+    val member: Member? = null,
 
     @Column(length = 20, nullable = false)
     var nickname: String,
