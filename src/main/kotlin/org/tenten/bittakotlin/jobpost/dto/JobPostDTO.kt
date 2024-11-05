@@ -53,7 +53,7 @@ data class JobPostDTO(
     val workCategory: WorkCategory? = null,
 
     @Schema(title = "오디션일", description = "오디션을 진행하는 날짜입니다.", example = "2023-09-24")
-    val auditionDate: LocalDate? = null,
+    val auditionDate: LocalDateTime? = null,
 
     @Schema(title = "촬영 시작일", description = "일이 시작하는 날짜입니다.", example = "2023-09-24")
     val startDate: LocalDate? = null,

@@ -8,17 +8,21 @@ import org.tenten.bittakotlin.apply.entity.Apply
 import org.tenten.bittakotlin.apply.entity.ApplyStatus
 import org.tenten.bittakotlin.apply.exception.ApplyException
 import org.tenten.bittakotlin.apply.repository.ApplyRepository
+import org.tenten.bittakotlin.calendar.entity.EventCalendar
+import org.tenten.bittakotlin.calendar.repository.EventCalendarRepository
 import org.tenten.bittakotlin.jobpost.exception.JobPostException
 import org.tenten.bittakotlin.jobpost.repository.JobPostRepository
 import org.tenten.bittakotlin.jobpost.util.JobPostProvider
 import org.tenten.bittakotlin.profile.entity.Profile
+import org.tenten.bittakotlin.profile.service.ProfileProvider
 
 @Service
 class ApplyServiceImpl(
     private val applyRepository: ApplyRepository,
     private val jobPostRepository: JobPostRepository,
-//    private val memberProvider: MemberProvider,
-    private val jobPostProvider: JobPostProvider
+    private val profileProvider: ProfileProvider,
+    private val jobPostProvider: JobPostProvider,
+    private val eventCalendarRepository: EventCalendarRepository
 ) : ApplyService {
 
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -39,6 +43,8 @@ class ApplyServiceImpl(
             jobPost!!.plusApplyCount()
             jobPostRepository.save(jobPost)
 
+            addCalendar(apply)
+
             mapOf(
                 "message" to "${apply.profile!!.nickname}님 지원 완료",
                 "data" to entityToDto(apply)
@@ -47,6 +53,18 @@ class ApplyServiceImpl(
             log.error(e.message)
             throw ApplyException.NOT_REGISTERED.get()
         }
+    }
+
+    private fun addCalendar(apply: Apply) {
+        val jobPost = apply.jobPost
+        val event = EventCalendar(
+            profile = apply.profile,
+            title = jobPost!!.title,
+            startDate = jobPost.startDate,
+            endDate = jobPost.endDate,
+            auditionDate = jobPost.auditionDate
+        )
+        eventCalendarRepository.save(event)
     }
 
     @Transactional
@@ -79,7 +97,7 @@ class ApplyServiceImpl(
         }
 
         val applies = applyRepository.findAllByJobPost(jobPost)
-        return applies//.map { entityToDto(it) }
+        return applies
     }
 
     @Transactional
@@ -104,10 +122,30 @@ class ApplyServiceImpl(
         applyRepository.save(apply)
     }
 
+    override fun setCalendar(apply: Apply?) {
+        val event = EventCalendar(
+            profile = apply!!.profile,
+            title = apply.jobPost!!.title,
+            startDate = apply.jobPost!!.startDate,
+            endDate = apply.jobPost!!.endDate,
+            auditionDate = apply.jobPost!!.auditionDate
+        )
+        eventCalendarRepository.save(event)
+    }
+
+    override fun getCalendar(profileId: Long?): List<EventCalendar?>? {
+        return eventCalendarRepository.findAllByProfileId(profileId!!)
+    }
+
+    @Transactional
+    override fun applyToCalendar(jobPostId: Long?, profileId: Long?) {
+        val apply = Apply()
+    }
+
     private fun dtoToEntity(applyDTO: ApplyDTO): Apply {
         return Apply(
             id = applyDTO.id,
-//            profile = profileProvider.getById(applyDTO.profileId!!),
+            profile = profileProvider.getById(applyDTO.profileId!!),
             jobPost = jobPostProvider.getById(applyDTO.jobPostId!!),
             appliedAt = applyDTO.appliedAt
         )
