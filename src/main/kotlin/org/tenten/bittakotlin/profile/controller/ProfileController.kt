@@ -31,8 +31,6 @@ class ProfileController(
         return ResponseEntity.ok(updatedProfile)
     }
 
-
-
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(ProfileController::class.java)
     }
