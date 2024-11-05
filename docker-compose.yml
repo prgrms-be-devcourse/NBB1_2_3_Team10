@@ -1,15 +1,27 @@
 version: '3'
 services:
-  backend:
-    container_name: backend-blue
+  frontend-blue:
+    image: publicdeveh/bitta-front:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+
+  frontend-green:
+    image: publicdeveh/bitta-front:latest
+    ports:
+      - "3002:3000"
+    environment:
+      - NODE_ENV=production
+
+  backend-blue:
     image: publicdeveh/bitta-kotlin:latest
     ports:
       - "8081:8000"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
 
-  backend_alternate:
-    container_name: backend-green
+  backend-green:
     image: publicdeveh/bitta-kotlin:latest
     ports:
       - "8082:8000"
