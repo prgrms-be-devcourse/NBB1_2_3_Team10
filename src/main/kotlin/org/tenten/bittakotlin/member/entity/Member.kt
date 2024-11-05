@@ -36,6 +36,4 @@ data class Member(
 
     @Column(nullable = false)
     var role: String? = null
-
-
 )

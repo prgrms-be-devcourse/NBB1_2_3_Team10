@@ -14,4 +14,10 @@ class MediaResponseDto {
 
         val media: Media
     )
+
+    data class PublicUpload (
+        val uploadUrl: String,
+
+        val readUrl: String
+    )
 }

@@ -79,12 +79,19 @@ class CustomLogoutFilter(
 
         // Proceed with logout
         refreshRepository.deleteByRefresh(refresh)
-        val cookie = Cookie("refresh", null).apply {
+
+        response.addCookie(getDiedCookie("refresh"))
+        response.addCookie(getDiedCookie("nickname"))
+        response.addCookie(getDiedCookie("profileUrl"))
+
+        logger.info("Successfully logged out and deleted refresh token")
+        response.status = HttpServletResponse.SC_OK
+    }
+
+    private fun getDiedCookie(name: String): Cookie {
+        return Cookie(name, null).apply {
             maxAge = 0
             path = "/"
         }
-        response.addCookie(cookie)
-        logger.info("Successfully logged out and deleted refresh token")
-        response.status = HttpServletResponse.SC_OK
     }
 }
