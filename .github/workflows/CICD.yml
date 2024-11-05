@@ -106,22 +106,21 @@ jobs:
             sudo systemctl reload nginx
 
       # Blue-Green 설정 Docker Compose 실행
-            - name: Deploy with Docker Compose on EC2
-              uses: appleboy/ssh-action@v0.1.6
-              with:
-                host: ${{ secrets.EC2_HOST }}
-                username: ${{ secrets.EC2_USER }}
-                key: ${{ secrets.EC2_SSH_KEY }}
-                script: |
-                  cd ~/bitta-project
-                  docker-compose down
-                  docker-compose up -d --no-deps
-                  sudo nginx -s reload
+      - name: Deploy with Docker Compose on EC2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/bitta-project
+            docker-compose down
+            docker-compose up -d --no-deps
+            sudo nginx -s reload
 
-      # test
+      # 테스트 단계
       - name: Test Frontend Response
         run: curl --fail http://${{ secrets.EC2_HOST }} || exit 1
 
       - name: Test Backend Response
         run: curl --fail http://${{ secrets.EC2_HOST }}/api/ || exit 1
-
