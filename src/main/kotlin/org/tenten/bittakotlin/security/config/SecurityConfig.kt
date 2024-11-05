@@ -79,6 +79,14 @@ class SecurityConfig(
                     "/api/v1/member/reissue").permitAll()
 
                 .requestMatchers(
+                    "/swagger",
+                    "/swagger-ui.html",
+                    "/swagger-ui/**",
+                    "/api-docs",
+                    "/api-docs/**",
+                    "/v3/api-docs/**").permitAll()
+
+                .requestMatchers(
                     "/api/v1/member/{id}/**",
                     "member/{id}/**",
                     "/api/v1/job-post/**",
