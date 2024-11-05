@@ -85,8 +85,8 @@ class SecurityConfig(
                     "/job-post/**",
                     "/api/v1/like/**").hasRole("USER")
 
-                .requestMatchers(HttpMethod.DELETE,"/api/member/{id}").authenticated()
-                .requestMatchers(HttpMethod.PUT,"/api/member/{id}").authenticated()
+                .requestMatchers(HttpMethod.DELETE,"/api/v1/member/{id}").authenticated()
+                .requestMatchers(HttpMethod.PUT,"/api/v1/member/{id}").authenticated()
                 .requestMatchers("/api/v1/chat/**").authenticated()
 
                 .anyRequest().authenticated()
