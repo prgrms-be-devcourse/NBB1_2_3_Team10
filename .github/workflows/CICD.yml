@@ -58,7 +58,7 @@ jobs:
         run: rm ./src/main/resources/application-prod.properties
 
   deploy:
-            if: github.repository == 'prgrms-be-devcourse/NBB1_2_3_Team10' && github.ref == 'refs/heads/release'
+    if: github.repository == 'prgrms-be-devcourse/NBB1_2_3_Team10' && github.ref == 'refs/heads/release'
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -97,9 +97,11 @@ jobs:
 
       # Blue-Green 설정 Docker Compose 실행
       - name: Deploy with Docker Compose on EC2
-        run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }}
-          docker-compose down
-          docker-compose up -d"
-        env:
-          SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker-compose down
+            docker-compose up -d
