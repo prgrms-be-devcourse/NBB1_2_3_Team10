@@ -1,17 +1,17 @@
-package org.tenten.bittakotlin.feedInteraction.like.controller
+package org.tenten.bittakotlin.feedInteraction.feedLike.controller
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.tenten.bittakotlin.feedInteraction.like.dto.LikeDTO
-import org.tenten.bittakotlin.feedInteraction.like.service.LikeService
+import org.tenten.bittakotlin.feedInteraction.feedLike.dto.FeedLikeDTO
+import org.tenten.bittakotlin.feedInteraction.feedLike.service.FeedLikeService
 
 
 @RestController
 @RequestMapping("/api/v1/feed/like")
-class LikeController(private val likeService: LikeService) {
+class FeedLikeController(private val likeService: FeedLikeService) {
 
     @PostMapping("/{feedId}")
-    fun toggleLike(@PathVariable feedId: Long, @RequestParam profileId: Long): ResponseEntity<LikeDTO> {
+    fun toggleLike(@PathVariable feedId: Long, @RequestParam profileId: Long): ResponseEntity<FeedLikeDTO> {
         val likeDTO = likeService.toggleLike(feedId, profileId)
         return ResponseEntity.ok(likeDTO)
     }

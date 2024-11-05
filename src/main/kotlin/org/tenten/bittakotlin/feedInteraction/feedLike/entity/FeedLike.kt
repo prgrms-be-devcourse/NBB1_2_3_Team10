@@ -1,14 +1,10 @@
-package org.tenten.bittakotlin.feedInteraction.like.entity
+package org.tenten.bittakotlin.feedInteraction.feedLike.entity
 
 import jakarta.persistence.*
-import lombok.AllArgsConstructor
-import lombok.Builder
-import lombok.Data
-import lombok.NoArgsConstructor
 import org.tenten.bittakotlin.feed.entity.Feed
 import org.tenten.bittakotlin.profile.entity.Profile
 
-data class Like(
+data class FeedLike(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
