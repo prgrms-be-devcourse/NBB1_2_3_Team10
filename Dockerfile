@@ -1,5 +1,5 @@
 # Use an official Gradle image to build the backend
-FROM gradle:7.5.1-jdk11 AS build
+FROM openjdk:17
 
 # Set working directory
 WORKDIR /app
