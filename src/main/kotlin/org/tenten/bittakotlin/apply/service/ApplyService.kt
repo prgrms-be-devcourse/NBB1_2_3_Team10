@@ -1,7 +1,9 @@
 package org.tenten.bittakotlin.apply.service
 
 import org.tenten.bittakotlin.apply.dto.ApplyDTO
+import org.tenten.bittakotlin.apply.entity.Apply
 import org.tenten.bittakotlin.apply.entity.ApplyStatus
+import org.tenten.bittakotlin.calendar.entity.EventCalendar
 import org.tenten.bittakotlin.profile.entity.Profile
 
 interface ApplyService {
@@ -20,6 +22,12 @@ interface ApplyService {
     fun getApplyCount(jobPostId: Long): Long
 
     fun applyStatusUpdate(applyId: Long, applyStatus: ApplyStatus, profileId: Long)
+
+    fun setCalendar(apply: Apply?)
+
+    fun getCalendar(profileId: Long?): List<EventCalendar?>?
+
+    fun applyToCalendar(jobPostId: Long?, profileId: Long?)
 }
 
 

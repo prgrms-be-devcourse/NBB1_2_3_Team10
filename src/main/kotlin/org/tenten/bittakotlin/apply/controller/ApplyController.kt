@@ -231,5 +231,12 @@ class ApplyController(
         applyService.applyStatusUpdate(applyId, applyStatusUpdateDTO.applyStatus!!, profileId)
         return ResponseEntity.ok("상태가 변경되었습니다")
     }
+
+    @PostMapping("/calendar")
+    fun applyToCalendar(@RequestParam jobPostId: Long, @RequestParam profileId: Long): ResponseEntity<String> {
+        applyService.applyToCalendar(jobPostId, profileId)
+        return ResponseEntity.ok("캘린더가 등록되었습니다")
+    }
+
 }
 
