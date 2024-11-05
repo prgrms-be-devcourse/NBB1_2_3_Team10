@@ -15,28 +15,20 @@ class ProfileController(
     private val profileService: ProfileServiceImpl
 ) {
 
-    @PostMapping
-    fun create(@RequestBody profileDTO: ProfileDTO): ResponseEntity<ProfileDTO> {
-        logger.info("Received request to create profile for memberId=${profileDTO.memberId}")
-        val response = ResponseEntity.ok(profileService.createProfile(profileDTO))
-        logger.info("Profile created successfully for memberId=${profileDTO.memberId}")
+    @GetMapping("/{profileId}")
+    fun get(@PathVariable profileId: Long): ResponseEntity<ProfileDTO> {
+        logger.info("Received request to get profile for profileId=$profileId")
+        val response = ResponseEntity.ok(profileService.getProfile(profileId))
+        logger.info("Profile fetched successfully for memberId=$profileId")
         return response
     }
 
-    @GetMapping("/{memberId}")
-    fun get(@PathVariable memberId: Long): ResponseEntity<ProfileDTO> {
-        logger.info("Received request to get profile for memberId=$memberId")
-        val response = ResponseEntity.ok(profileService.getProfile(memberId))
-        logger.info("Profile fetched successfully for memberId=$memberId")
-        return response
-    }
-
-    @PutMapping("/{memberId}")
-    fun update(@PathVariable memberId: Long, @RequestBody profileDTO: ProfileDTO): ResponseEntity<ProfileDTO> {
-        logger.info("Received request to update profile for memberId=$memberId")
-        val response = ResponseEntity.ok(profileService.updateProfile(memberId, profileDTO))
-        logger.info("Profile updated successfully for memberId=$memberId")
-        return response
+    @PutMapping("/{profileId}")
+    fun update(@PathVariable profileId: Long, @RequestBody profileDTO: ProfileDTO): ResponseEntity<ProfileDTO> {
+        logger.info("Received request to update profile for profileId=$profileId")
+        val updatedProfile = profileService.updateProfile(profileId, profileDTO)
+        logger.info("Profile updated successfully for profileId=$profileId")
+        return ResponseEntity.ok(updatedProfile)
     }
 
     companion object {

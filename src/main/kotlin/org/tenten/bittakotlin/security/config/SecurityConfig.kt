@@ -4,6 +4,7 @@ import JWTFilter
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -71,17 +72,30 @@ class SecurityConfig(
             auth
                 .requestMatchers(
                     "/",
-                    "/api/member/login",
-                    "/api/member/join",
-                    "/api/member/reissue").permitAll()
-                .requestMatchers("/api/member/{id}/**").hasRole("USER")
+                    "/api/v1/member/login",
+                    "/member/login",
+                    "/api/v1/member/join",
+                    "/member/join",
+                    "/api/v1/member/reissue").permitAll()
+
+                .requestMatchers(
+                    "/api/v1/member/{id}/**",
+                    "member/{id}/**",
+                    "/api/v1/job-post/**",
+                    "/job-post/**",
+                    "/api/v1/like/**").hasRole("USER")
+
+                .requestMatchers(HttpMethod.DELETE,"/api/member/{id}").authenticated()
+                .requestMatchers(HttpMethod.PUT,"/api/member/{id}").authenticated()
+                .requestMatchers("/api/v1/chat/**").authenticated()
+
                 .anyRequest().authenticated()
         }
 
         http.addFilterBefore(JWTFilter(jwtUtil), LoginFilter::class.java)
 
         val loginFilter = LoginFilter(authenticationManager(), jwtUtil, refreshRepository)
-        loginFilter.setFilterProcessesUrl("/api/member/login")
+        loginFilter.setFilterProcessesUrl("/api/v1/member/login")
         http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter::class.java)
 
         http.addFilterBefore(CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter::class.java)

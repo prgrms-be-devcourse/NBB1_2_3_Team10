@@ -9,7 +9,7 @@ interface MemberService {
 
     fun read(id: Long): MemberResponseDTO.Information
 
-    fun updateMember(request: MemberRequestDTO.UpdateMemberRequest)
+    fun updateMember(request: MemberRequestDTO.UpdateMemberRequest, id: Long)
 
     fun remove(id: Long)
 

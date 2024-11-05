@@ -1,15 +1,17 @@
 package org.tenten.bittakotlin.media.dto
 
-import jakarta.validation.constraints.NotBlank
+import org.tenten.bittakotlin.media.entity.Media
 
 class MediaResponseDto {
     data class Read (
-        @field:NotBlank(message = "조회 링크가 비어있습니다.")
-        val link: String
+        val filename: String,
+
+        val url: String
     )
 
     data class Upload (
-        @field:NotBlank(message = "업로드 링크가 비어있습니다.")
-        val link: String
+        val url: String,
+
+        val media: Media
     )
 }

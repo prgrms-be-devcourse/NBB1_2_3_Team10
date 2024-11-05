@@ -3,10 +3,10 @@ package org.tenten.bittakotlin.profile.entity
 
 import jakarta.persistence.*
 import org.tenten.bittakotlin.apply.entity.Apply
-import org.tenten.bittakotlin.jobpost.entity.JobPost
 import org.tenten.bittakotlin.like.entity.Like
 import org.tenten.bittakotlin.member.entity.Member
 import org.tenten.bittakotlin.profile.constant.Job
+import org.tenten.bittakotlin.scout.entity.ScoutRequest
 
 //data class 로 변경
 @Entity
@@ -38,5 +38,11 @@ class Profile(
     val apply: List<Apply> = mutableListOf(),
 
     @OneToMany(mappedBy = "profile", fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE], orphanRemoval = true)
-    val like: List<Like> = mutableListOf()
+    val like: List<Like> = mutableListOf(),
+
+    @OneToMany(mappedBy = "sender", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val sentScoutRequests: List<ScoutRequest> = mutableListOf(),
+
+    @OneToMany(mappedBy = "receiver", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val receivedScoutRequests: List<ScoutRequest> = mutableListOf()
 )

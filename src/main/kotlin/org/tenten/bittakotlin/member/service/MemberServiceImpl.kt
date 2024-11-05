@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 import org.tenten.bittakotlin.member.dto.MemberRequestDTO
 import org.tenten.bittakotlin.member.dto.MemberResponseDTO
 import org.tenten.bittakotlin.member.entity.Member
+import org.tenten.bittakotlin.member.exception.MemberException
 import org.tenten.bittakotlin.member.repository.MemberRepository
 import org.tenten.bittakotlin.profile.service.ProfileService
 
@@ -27,10 +28,9 @@ class MemberServiceImpl  (
         val nickname = joinDTO.nickname
         val address = joinDTO.address
 
-        val isExist = memberRepository.existsByUsername(username)
-
-        if (isExist) {
-            return
+        // 사용자 이름 중복 검사
+        if (memberRepository.existsByUsername(username)) {
+            throw MemberException.DUPLICATE.get() // 중복 시 예외 발생
         }
 
         val data = Member(
@@ -53,7 +53,7 @@ class MemberServiceImpl  (
 
     override fun read(id: Long): MemberResponseDTO.Information {
         val member = memberRepository.findById(id)
-            .orElseThrow { IllegalArgumentException("Member not found.") }
+            .orElseThrow { MemberException.NOT_FOUND.get() }
 
         return MemberResponseDTO.Information(
             id = member.id!!,
@@ -63,14 +63,14 @@ class MemberServiceImpl  (
         )
     }
 
-    override fun updateMember(request: MemberRequestDTO.UpdateMemberRequest) {
-        val member = memberRepository.findById(request.id)
-            .orElseThrow { IllegalArgumentException("Member not found.") }
+    override fun updateMember(request: MemberRequestDTO.UpdateMemberRequest, id: Long) {
+        val member = memberRepository.findById(id)
+            .orElseThrow { MemberException.NOT_FOUND.get() }
 
         // 비밀번호 변경 요청이 있을 경우
         if (request.beforePassword != null && request.afterPassword != null) {
             if (!bCryptPasswordEncoder.matches(request.beforePassword, member.password)) {
-                throw IllegalArgumentException("Incorrect previous password.")
+                throw MemberException.BAD_CREDENTIAL.get()
             }
             // 비밀번호 암호화 및 업데이트
             member.password = bCryptPasswordEncoder.encode(request.afterPassword)
@@ -80,7 +80,7 @@ class MemberServiceImpl  (
         request.nickname?.let { member.nickname = it }
         request.address?.let { member.address = it }
 
-        member.username = request.username // 아이디는 항상 업데이트
+        // username은 변경할 수 없으므로 해당 줄 제거
 
         memberRepository.save(member) // 수정 후 저장
     }
@@ -88,7 +88,7 @@ class MemberServiceImpl  (
     override fun remove(id: Long) {
 
         if (!memberRepository.existsById(id)) {
-            throw NoSuchElementException("Member ${id} not found.")
+            throw MemberException.NOT_FOUND.get()
         }
         memberRepository.deleteById(id)
     }

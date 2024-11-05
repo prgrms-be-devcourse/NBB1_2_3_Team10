@@ -1,5 +1,5 @@
 package org.tenten.bittakotlin.scout.controller
-/*
+
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -44,4 +44,3 @@ class ScoutRequestController(
     }
 }
 
- */
