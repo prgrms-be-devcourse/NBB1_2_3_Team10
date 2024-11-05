@@ -8,7 +8,6 @@ import org.tenten.bittakotlin.member.entity.Member
 import org.tenten.bittakotlin.profile.constant.Job
 import org.tenten.bittakotlin.scout.entity.ScoutRequest
 
-//data class 로 변경
 @Entity
 class Profile(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
