@@ -1,4 +1,4 @@
-name: Java CI/CD
+name: Backend CI/CD Pipeline
 
 on:
   push:
@@ -53,8 +53,12 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/bitta-kotlin:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/bitta-kotlin:latest
 
+      # application-prod.properties 빌드 후 제거 - 안전성 확보
+      - name: Clean up application-prod.properties
+        run: rm ./src/main/resources/application-prod.properties
+
   deploy:
-    if: github.repository == 'prgrms-be-devcourse/NBB1_2_3_Team10' && github.ref == 'refs/heads/release'
+            if: github.repository == 'prgrms-be-devcourse/NBB1_2_3_Team10' && github.ref == 'refs/heads/release'
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -71,11 +75,10 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Docker 로그인 및 최신 이미지 가져오기
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             docker pull ${{ secrets.DOCKER_USERNAME }}/bitta-kotlin:latest
 
-            # blue/green 컨테이너 전환
+            # Blue-Green 배포: blue와 green 컨테이너 전환
             CURRENT_CONTAINER=$(docker ps --filter "name=backend-blue" -q)
             TARGET_CONTAINER="backend-green"
             [ -z "$CURRENT_CONTAINER" ] && TARGET_CONTAINER="backend-blue"
@@ -83,9 +86,20 @@ jobs:
             # 새 컨테이너 실행
             docker stop $TARGET_CONTAINER || true
             docker rm $TARGET_CONTAINER || true
-            docker run -d --name $TARGET_CONTAINER -p 8080:80 \
-              -e NODE_ENV=production \
+            docker run -d --name $TARGET_CONTAINER -p 8080:8080 \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+              -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
               ${{ secrets.DOCKER_USERNAME }}/bitta-kotlin:latest
 
             # Nginx 리로드하여 트래픽 전환
             sudo systemctl reload nginx
+
+      # Blue-Green 설정 Docker Compose 실행
+      - name: Deploy with Docker Compose on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }}
+          docker-compose down
+          docker-compose up -d"
+        env:
+          SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
