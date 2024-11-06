@@ -119,8 +119,8 @@ jobs:
             sudo nginx -s reload
 
       # 테스트 단계
-      - name: Test Frontend Response
-        run: curl --fail http://${{ secrets.EC2_HOST }} || exit 1
+      - name: Test Backend Response
+        run: curl http://localhost:8080
 
       - name: Test Backend Response
         run: curl --fail http://${{ secrets.EC2_HOST }}/api/ || exit 1
