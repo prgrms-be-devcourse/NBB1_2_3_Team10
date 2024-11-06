@@ -10,7 +10,11 @@ import org.tenten.bittakotlin.member.dto.MemberResponseDTO
 import org.tenten.bittakotlin.member.entity.Member
 import org.tenten.bittakotlin.member.exception.MemberException
 import org.tenten.bittakotlin.member.repository.MemberRepository
+import org.tenten.bittakotlin.profile.entity.Profile
 import org.tenten.bittakotlin.profile.service.ProfileService
+import org.tenten.bittakotlin.security.dto.TokenRequestDto
+import org.tenten.bittakotlin.security.service.TokenService
+import org.tenten.bittakotlin.security.util.JwtTokenUtil
 
 @Service
 @RequiredArgsConstructor
@@ -18,9 +22,31 @@ import org.tenten.bittakotlin.profile.service.ProfileService
 class MemberServiceImpl  (
     private val memberRepository: MemberRepository,
     private val bCryptPasswordEncoder: BCryptPasswordEncoder,
-    private val profileService: ProfileService
-  
+    private val profileService: ProfileService,
+    private val tokenService: TokenService
 ): MemberService {
+    override fun login(requestDto: MemberRequestDTO.Login): MemberResponseDTO.Login {
+        val member = memberRepository.findByUsername(requestDto.username)
+            ?: throw MemberException.BAD_CREDENTIAL.get()
+
+        if (!bCryptPasswordEncoder.matches(requestDto.password, member.password)) {
+            throw MemberException.BAD_CREDENTIAL.get()
+        }
+
+        val tokenResponseDto = tokenService.create(TokenRequestDto.Create(
+            username = member.username,
+            role = member.role!!
+        ))
+
+        val profile: Profile = profileService.getByUsername(member.username)
+
+        return MemberResponseDTO.Login(
+            accessToken = tokenResponseDto.accessToken,
+            refreshToken = tokenResponseDto.refreshToken,
+            profileId = profile.id!!,
+            profileUrl = profile.profileUrl!!
+        )
+    }
 
     override fun join(joinDTO: MemberRequestDTO.Join) {
         val username = joinDTO.username

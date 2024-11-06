@@ -14,6 +14,8 @@ interface ProfileService {
 
     fun getByPrincipal(): Profile
 
+    fun getByUsername(username: String): Profile
+
     fun updateProfileImage(requestDto: MediaRequestDto.Upload): String
 
     fun deleteProfileImage()

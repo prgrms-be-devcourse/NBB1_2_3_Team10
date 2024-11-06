@@ -1,10 +1,8 @@
 package org.tenten.bittakotlin.security.config
 
-import JWTFilter
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -12,25 +10,23 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import org.springframework.security.web.authentication.logout.LogoutFilter
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
-import org.tenten.bittakotlin.member.repository.MemberRepository
-import org.tenten.bittakotlin.profile.service.ProfileService
-import org.tenten.bittakotlin.security.jwt.CustomLogoutFilter
-import org.tenten.bittakotlin.security.jwt.JWTUtil
-import org.tenten.bittakotlin.security.jwt.LoginFilter
-import org.tenten.bittakotlin.security.repository.RefreshRepository
+import org.tenten.bittakotlin.security.filter.JwtAuthenticationFilter
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
+    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+
     private val authenticationConfiguration: AuthenticationConfiguration,
-    private val jwtUtil: JWTUtil,
-    private val refreshRepository: RefreshRepository,
-    private val profileService: ProfileService
 ) {
+    private val publicUrls = arrayOf("/", "/api/v1/member/login", "/api/v1/member/logout", "/api/v1/member/join", "/api/v1/token",
+        "/swagger", "/swagger-ui.html", "/swagger-ui/**", "/api-docs", "/api-docs/**", "/v3/api-docs/**")
+
+    private val signedUrls = arrayOf("/api/v1/member/{id}**", "/api/v1/job-post/**", "/job-post/**", "/api/v1/like/**",
+        "/api/v1/chat/**", "/api/v1/feed")
 
     @Bean
     @Throws(Exception::class)
@@ -61,60 +57,28 @@ class SecurityConfig(
             })
         }
 
-        // CSRF disable
         http.csrf { it.disable() }
+            .formLogin { it.disable() }
+            .httpBasic { it.disable() }
+            .authorizeHttpRequests { auth ->
+                auth
+                    .requestMatchers(*publicUrls).permitAll()
+                    .requestMatchers(*signedUrls).hasRole("USER")
+                    .anyRequest().authenticated()
+            }
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter::class.java)
 
-        // Form 로그인 방식 disable
-        http.formLogin { it.disable() }
 
-        // HTTP Basic 인증 방식 disable
-        http.httpBasic { it.disable() }
+        /*http.addFilterAfter(JWTFilter(jwtUtil), LoginFilter::class.java)
 
-        http.authorizeHttpRequests { auth ->
-            auth
-                .requestMatchers(
-                    "/",
-                    "/api/v1/member/login",
-                    "/member/login",
-                    "/api/v1/member/join",
-                    "/member/join",
-                    "/api/v1/member/reissue").permitAll()
+        val loginFilter = LoginFilter(authenticationManager(), jwtUtil, refreshRepository)
 
-                .requestMatchers(
-                    "/swagger",
-                    "/swagger-ui.html",
-                    "/swagger-ui/**",
-                    "/api-docs",
-                    "/api-docs/**",
-                    "/v3/api-docs/**").permitAll()
-
-                .requestMatchers(
-                    "/api/v1/member/{id}/**",
-                    "member/{id}/**",
-                    "/api/v1/job-post/**",
-                    "/job-post/**",
-                    "/api/v1/like/**").hasRole("USER")
-
-                .requestMatchers(HttpMethod.DELETE,"/api/v1/member/{id}").authenticated()
-                .requestMatchers(HttpMethod.PUT,"/api/v1/member/{id}").authenticated()
-                .requestMatchers("/api/v1/chat/**").authenticated()
-
-                .anyRequest().authenticated()
-        }
-
-        http.addFilterBefore(JWTFilter(jwtUtil), LoginFilter::class.java)
-
-        val loginFilter = LoginFilter(authenticationManager(), jwtUtil, refreshRepository, profileService)
         loginFilter.setFilterProcessesUrl("/api/v1/member/login")
 
         http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter::class.java)
 
-        http.addFilterBefore(CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter::class.java)
-
-        // 세션 설정
-        http.sessionManagement { session ->
-            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        }
+        http.addFilterBefore(CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter::class.java)*/
 
         return http.build()
     }

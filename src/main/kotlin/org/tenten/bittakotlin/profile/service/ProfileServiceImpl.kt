@@ -137,6 +137,11 @@ class ProfileServiceImpl(
             .orElseThrow { NoSuchElementException() }
     }
 
+    override fun getByUsername(username: String): Profile {
+        return profileRepository.findByUsername(username)
+            .orElseThrow { NoSuchElementException() }
+    }
+
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(ProfileServiceImpl::class.java)
     }

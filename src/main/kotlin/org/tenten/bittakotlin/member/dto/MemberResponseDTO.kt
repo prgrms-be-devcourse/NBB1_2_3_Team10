@@ -20,4 +20,13 @@ class MemberResponseDTO {
         val address: String
     )
 
+    data class Login(
+        val accessToken: String,
+
+        val refreshToken: String,
+
+        val profileId: Long,
+
+        val profileUrl: String
+    )
 }
