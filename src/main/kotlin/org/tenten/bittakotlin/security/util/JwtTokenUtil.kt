@@ -1,4 +1,4 @@
-package org.tenten.bittakotlin.security.jwt
+package org.tenten.bittakotlin.security.util
 
 import io.jsonwebtoken.Jwts
 import org.springframework.beans.factory.annotation.Value
@@ -8,13 +8,22 @@ import java.util.*
 import javax.crypto.SecretKey
 import javax.crypto.spec.SecretKeySpec
 
-
 @Component
-class JWTUtil(@Value("\${spring.jwt.secret}") secret: String) {
+class JwtTokenUtil (@Value("\${spring.jwt.secret}") secret: String) {
     private val secretKey: SecretKey = SecretKeySpec(
         secret.toByteArray(StandardCharsets.UTF_8),
         Jwts.SIG.HS256.key().build().algorithm
     )
+
+    fun isExpired(token: String): Boolean {
+        return Jwts.parser()
+            .verifyWith(secretKey)
+            .build()
+            .parseSignedClaims(token)
+            .payload
+            .expiration
+            .before(Date())
+    }
 
     fun getUsername(token: String): String {
         return Jwts.parser()
@@ -34,32 +43,22 @@ class JWTUtil(@Value("\${spring.jwt.secret}") secret: String) {
             .get("role", String::class.java)
     }
 
-    fun getCategory(token: String): String {
-        return Jwts.parser()
-            .verifyWith(secretKey)
-            .build()
-            .parseSignedClaims(token)
-            .payload
-            .get("category", String::class.java)
-    }
-
-    fun isExpired(token: String): Boolean {
-        return Jwts.parser()
-            .verifyWith(secretKey)
-            .build()
-            .parseSignedClaims(token)
-            .payload
-            .expiration
-            .before(Date())
-    }
-
-    fun createJwt(category: String, username: String, role: String, expiredMs: Long): String {
+    fun generateAccessToken(username: String, role: String, currentMills: Long): String {
         return Jwts.builder()
-            .claim("category", category)
-            .claim("username", username)
-            .claim("role", role)
-            .issuedAt(Date(System.currentTimeMillis()))
-            .expiration(Date(System.currentTimeMillis() + expiredMs))
+            .claims(mapOf(
+                "username" to username,
+                "role" to role
+            ))
+            .issuedAt(Date(currentMills))
+            .expiration(Date(currentMills + 3600000))
+            .signWith(secretKey)
+            .compact()
+    }
+
+    fun generateRefreshToken(currentMills: Long): String {
+        return Jwts.builder()
+            .issuedAt(Date(currentMills))
+            .expiration(Date(currentMills + 604800000))
             .signWith(secretKey)
             .compact()
     }

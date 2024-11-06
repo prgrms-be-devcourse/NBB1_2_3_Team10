@@ -5,7 +5,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.tenten.bittakotlin.media.constant.MediaError
+import org.tenten.bittakotlin.media.dto.MediaResponseDto
 import org.tenten.bittakotlin.media.exception.MediaException
+import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException
@@ -54,6 +56,13 @@ class S3ServiceImpl(
         }
 
         return presignedPutRequest.url().toString()
+    }
+
+    override fun getPublicUploadUrl(name: String, contentType: String): MediaResponseDto.PublicUpload {
+        return MediaResponseDto.PublicUpload(
+            uploadUrl = getUploadUrl(name, contentType),
+            readUrl = "https://${s3Bucket}.s3.${Region.AP_NORTHEAST_2}.amazonaws.com/$name"
+        )
     }
 
     override fun delete(name: String): Unit {

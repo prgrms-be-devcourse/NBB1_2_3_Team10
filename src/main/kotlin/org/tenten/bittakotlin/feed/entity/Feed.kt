@@ -30,7 +30,7 @@ data class Feed(
 
     @CreatedDate
     @Column(updatable = false, nullable = false)
-    val createdAt: LocalDateTime? = null,
+    var createdAt: LocalDateTime? = null,
 
     @LastModifiedDate
     @Column(updatable = true, nullable = false)

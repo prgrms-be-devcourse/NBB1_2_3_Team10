@@ -42,8 +42,8 @@ class MediaServiceImpl(
     }
 
     override fun upload(requestDto: MediaRequestDto.Upload, profile: Profile): MediaResponseDto.Upload {
-        val filename: String = UUID.randomUUID().toString()
         val filetype: MediaType = checkMimetype(requestDto.mimetype)
+        val filename: String = UUID.randomUUID().toString() + getExtension(requestDto.mimetype)
         val filesize: Int = checkFileSize(requestDto.filesize, filetype)
 
         val media: Media = mediaRepository.save(Media(
@@ -92,6 +92,23 @@ class MediaServiceImpl(
 
         logger.warn("The file type is not valid: filetype=$mimetype")
         throw MediaException(MediaError.WRONG_MIME_TYPE)
+    }
+
+    private fun getExtension(mimetype: String): String? {
+        val mimetypeMap = mapOf(
+            "image/jpeg" to "jpg",
+            "image/png" to "png",
+            "image/gif" to "gif",
+            "image/bmp" to "bmp",
+            "image/webp" to "webp",
+            "image/svg+xml" to "svg",
+            "video/mp4" to "mp4",
+            "video/webm" to "webm",
+            "video/ogg" to "ogg",
+            "video/x-msvideo" to "avi",
+            "video/x-matroska" to "mkv"
+        )
+        return mimetypeMap[mimetype]
     }
 
     private fun checkFileSize(filesize: Int, type: MediaType): Int {

@@ -46,7 +46,7 @@ class FeedController (
     }
 
     @PostMapping
-    fun create(requestDto: FeedRequestDto.Create): ResponseEntity<Map<String, Any>> {
+    fun create(@RequestBody requestDto: FeedRequestDto.Create): ResponseEntity<Map<String, Any>> {
         return ResponseEntity.ok(mapOf(
             "message" to "피드를 성공적으로 등록했습니다.",
             "result" to feedService.save(requestDto)

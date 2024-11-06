@@ -5,6 +5,9 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.AccessDeniedException
@@ -14,16 +17,54 @@ import org.tenten.bittakotlin.member.dto.MemberResponseDTO
 import org.tenten.bittakotlin.member.exception.MemberException
 import org.tenten.bittakotlin.member.repository.MemberRepository
 import org.tenten.bittakotlin.member.service.MemberService
-import org.tenten.bittakotlin.security.jwt.JWTUtil
+import org.tenten.bittakotlin.security.util.JwtTokenUtil
 
 @Tag(name = "회원관리 API 컨트롤러", description = "회원과 관련된 RestAPI 제공 컨트롤러")
 @RestController
 @RequestMapping("/api/v1/member")
 class MemberController(
     private val memberService: MemberService,
-    private val jwtUtil: JWTUtil,
-    private val memberRepository: MemberRepository
+    private val memberRepository: MemberRepository,
+    private val jwtTokenUtil: JwtTokenUtil
 ) {
+
+    @PostMapping("/login")
+    fun login(@RequestBody requestDto: MemberRequestDTO.Login): ResponseEntity<Map<String, Any>> {
+        val responseDto: MemberResponseDTO.Login = memberService.login(requestDto)
+
+        val headers = HttpHeaders().apply {
+            add(HttpHeaders.SET_COOKIE, getCookieString("accessToken", responseDto.accessToken, 3600, false))
+            add(HttpHeaders.SET_COOKIE, getCookieString("refreshToken", responseDto.refreshToken, 604800, false))
+            add(HttpHeaders.SET_COOKIE, getCookieString("profileId", responseDto.profileId.toString(), 604800, true))
+            add(HttpHeaders.SET_COOKIE, getCookieString("profileUrl", responseDto.profileUrl, 604800, true))
+        }
+
+        val body = mapOf("message" to "로그인이 성공했습니다.")
+
+        return ResponseEntity(body, headers, HttpStatus.OK)
+    }
+
+    @PostMapping("/logout")
+    fun logout(request: HttpServletRequest, response: HttpServletResponse): ResponseEntity<Map<String, Any>> {
+        val headers = HttpHeaders().apply {
+            add(HttpHeaders.SET_COOKIE, getCookieString("accessToken", null, 0, false))
+            add(HttpHeaders.SET_COOKIE, getCookieString("refreshToken", null, 0, false))
+            add(HttpHeaders.SET_COOKIE, getCookieString("profileId", null, 0, true))
+            add(HttpHeaders.SET_COOKIE, getCookieString("profileUrl", null, 0, true))
+        }
+
+        val body = mapOf("message" to "로그아웃이 성공했습니다.")
+
+        return ResponseEntity(body, headers, HttpStatus.OK)
+    }
+
+
+    private fun getCookieString(name: String, token: String?, ageMax: Int, isPublic: Boolean): String {
+        return buildString {
+            append("$name=$token; Path=/; Max-Age=$ageMax;")
+            if (!isPublic) append(" HttpOnly;")
+        }
+    }
 
     // 회원가입
 
@@ -77,7 +118,7 @@ class MemberController(
         @RequestHeader("access") token: String // JWT 토큰을 헤더에서 추출
     ): ResponseEntity<Void> {
         // 현재 로그인한 사용자 username 추출
-        val usernameFromToken = jwtUtil.getUsername(token)
+        val usernameFromToken = jwtTokenUtil.getUsername(token)
 
         // id로 회원 정보 조회
         val member = memberRepository.findById(id)
@@ -96,7 +137,7 @@ class MemberController(
 
     @DeleteMapping("/{id}")
     fun remove(@PathVariable id: Long, @RequestHeader("access") token: String): ResponseEntity<String> {
-        val username = jwtUtil.getUsername(token)
+        val username = jwtTokenUtil.getUsername(token)
         val member = memberRepository.findById(id)
             .orElseThrow { IllegalArgumentException("Member not Found.") }
         if(member.username != username) {

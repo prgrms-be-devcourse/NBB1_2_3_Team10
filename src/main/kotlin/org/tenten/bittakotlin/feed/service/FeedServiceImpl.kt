@@ -16,6 +16,7 @@ import org.tenten.bittakotlin.feed.dto.FeedRequestDto
 import org.tenten.bittakotlin.feed.dto.FeedResponseDto
 import org.tenten.bittakotlin.profile.entity.Profile
 import org.tenten.bittakotlin.profile.service.ProfileService
+import java.time.LocalDateTime
 
 @Service
 @RequiredArgsConstructor
@@ -80,7 +81,9 @@ class FeedServiceImpl(
         val feed: Feed = feedRepository.save(Feed(
             title = requestDto.title,
             content = requestDto.content,
-            profile = profile
+            profile = profile,
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now()
         ))
 
         return if (requestDto.medias != null) {
