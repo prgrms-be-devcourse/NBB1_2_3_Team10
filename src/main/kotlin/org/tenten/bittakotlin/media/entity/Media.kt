@@ -28,7 +28,7 @@ data class Media (
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    val savedAt: LocalDateTime? = null,
+    var savedAt: LocalDateTime? = null,
 
     @ManyToOne
     @JoinColumn

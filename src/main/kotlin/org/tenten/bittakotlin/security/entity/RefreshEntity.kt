@@ -12,6 +12,8 @@ data class RefreshEntity(
     val id: Long? = null,
 
     val username: String,
+
     val refresh: String,
+
     val expiration: String
 )

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.tenten.bittakotlin.feed.entity.Feed
 import org.tenten.bittakotlin.feed.entity.FeedMedia
+import org.tenten.bittakotlin.feed.entity.key.FeedMediaId
 import org.tenten.bittakotlin.feed.repository.FeedMediaRepository
 import org.tenten.bittakotlin.media.dto.MediaRequestDto
 import org.tenten.bittakotlin.media.dto.MediaResponseDto
@@ -22,10 +23,12 @@ class FeedMediaServiceImpl(
 
         uploadRequestDtos.forEach { uploadRequestDto ->
             val mediaResponseDto: MediaResponseDto.Upload = mediaService.upload(uploadRequestDto, profile)
+            val media = mediaResponseDto.media
 
             feedMediaRepository.save(FeedMedia(
+                id = FeedMediaId(feedId = feed.id!!, mediaId = media.id!!),
                 feed = feed,
-                media = mediaResponseDto.media
+                media = media
             ))
 
             responseDto.add(MediaResponseDto.Read(
